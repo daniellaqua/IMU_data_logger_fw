@@ -1,1 +1,0 @@
-"./main_SD.obj" "./FatFS/diskio.obj" "./FatFS/ff.obj" "../lnk_msp430fr5969.cmd" -llibc.a -llibmath.a 
