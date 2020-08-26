@@ -1,7 +1,3 @@
-// mit neuem Compiler
-
-
-
 #include <msp430.h>
 #include <stdint.h>
 #include "./FatFS/ff.h"
@@ -12,28 +8,34 @@ FATFS sdVolume;     // FatFs work area needed for each volume
 FIL logfile;        // File object needed for each open file
 uint16_t fp;        // Used for sizeof
 uint8_t status = 17;    // Status variable that should change if successful
-unsigned int backupCtr; // Counter for data backup
+unsigned int backupCtr = 0; // Counter for data backup
 unsigned int mode; // operating mode(standby mode / measurement mode)
 unsigned int measurementInit; //check if new file has to be created and opened
-//float testFloat = 1.0;//85432.123;	// Sample floating point number
-//int32_t printValue[2];	// Size 2 array that will hold the split float for printing
 
-//Sensor variables
-unsigned char RX_Data[14];
+unsigned char RX_Data[23];
 unsigned char TX_Data[2];
-unsigned char RX_ByteCtr;
-unsigned char TX_ByteCtr;
+unsigned char RX_ByteCtr = 0;
+unsigned char TX_ByteCtr = 0;
 unsigned char slaveAddress = 0x69;  // Set slave address for ICM20948 0x68 for ADD pin=0/0x69 for ADD pin=1
 unsigned int G_MODE;
 unsigned int DPS_MODE;
-int xAccel;
-int yAccel;
-int zAccel;
-int xGyro;
-int yGyro;
-int zGyro;
-int Temp;
-int whoami;
+int xAccel = 0;
+int yAccel = 0;
+int zAccel = 0;
+int xGyro = 0;
+int yGyro = 0;
+int zGyro = 0;
+int Temp = 0;
+int xMag = 0;
+int yMag = 0;
+int zMag = 0;
+int magstat1 = 0;
+int magstat2 = 0;
+int whoami = 0;
+int register_value = 0;
+int slave4done = 0;
+int count = 0;
+int a = 0;
 
 void i2cInit(void);
 void i2cWrite(unsigned char);
@@ -84,24 +86,6 @@ void i2cRead(unsigned char address)
     //__bis_SR_register(GIE);    // sleep until UCB0RXIFG is set ...
 }
 
-//*********************************************************************************************
-////helper function to print floating point numbers
-//void FloatToPrint(float floatValue, int32_t splitValue[2]){
-//	int32_t i32IntegerPart;
-//	int32_t i32FractionPart;
-//
-//	i32IntegerPart = (int32_t) floatValue;
-//	i32FractionPart = (int32_t) (floatValue * 1000.0f);
-//	i32FractionPart = i32FractionPart - (1000 * i32IntegerPart);
-//	if(i32FractionPart < 0){
-//		i32FractionPart *= -1;
-//	}
-//
-//	splitValue[0] = i32IntegerPart;
-//	splitValue[1] = i32FractionPart;
-//}
-
-
 
 //*********************************************************************************************
 int main(void){
@@ -118,18 +102,10 @@ int main(void){
 	  P4OUT |= BIT6;							// P4.6 LED on
 	  P4OUT &= ~BIT6;                           //LED2=OFF initially
 
-//	  // Prepare I2C and clock pins
-//	  P1SEL1 |= BIT6 | BIT7;                    // I2C pins
-//	  PJSEL0 |= BIT4 | BIT5;					// Set J.4 & J.5 to accept crystal input for ACLK
-
-	  // Prepare P1.1 and P1.3 for switch
-	  //P1OUT = BIT1 | BIT3;                      // Pull-up resistor on P1.1, 1.3
-	  //P1REN = BIT1 | BIT3;                      // Select pull-up mode for P1.1, 1.3
-
-	  P1DIR &= ~BIT1;                           //set P1.1 (Switch2) to input
-	  P1REN |= BIT1;                            //turn on resistor
-	  P1OUT |= BIT1;                            //makes resistor a pull up
-	  P1IES |= BIT1;                            //make sensitive to High-to-Low
+	  //P1DIR &= ~BIT1;                           //set P1.1 (Switch2) to input
+	  //P1REN |= BIT1;                            //turn on resistor
+	  //P1OUT |= BIT1;                            //makes resistor a pull up
+	  //P1IES |= BIT1;                            //make sensitive to High-to-Low
 
 	  P4DIR &= ~BIT5;                           //set P4.5 (Switch1) to input
 	  P4REN |= BIT5;                            //turn on register
@@ -138,9 +114,6 @@ int main(void){
 
 	  P1SEL1 |= BIT6 + BIT7;                    //for I2C functionality P1SEL1 high,P1SEL0 low
 	  //P1SEL0|= BIT6 + BIT7;                   //for I2C functionality P1SEL1 high,P1SEL0 low
-
-//	  P1IE |= BIT1;                             //Enable P1.1 IRQ (Switch2)
-//	  P1IFG &= ~BIT1;                           //clear flag
 
 
 	  // Disable the GPIO power-on default high-impedance mode to activate
@@ -163,32 +136,11 @@ int main(void){
 	  CSCTL4 &= ~LFXTOFF;                       // Turn on LFXT
 	  CSCTL0_H = 0;                             // Lock CS registers
 
-	  // Clock System Setup 8MHz Beispiel
-//	    CSCTL0_H = CSKEY >> 8;                    // Unlock CS registers
-//	    CSCTL1 = DCOFSEL_6;                       // Set DCO to 8MHz
-//	    CSCTL2 = SELA__VLOCLK | SELS__DCOCLK | SELM__DCOCLK;  // Set SMCLK = MCLK = DCO
-//	                                              // ACLK = VLOCLK
-//	    CSCTL3 = DIVA__1 | DIVS__1 | DIVM__1;     // Set all dividers to 1
-//	    CSCTL0_H = 0;                             // Lock CS registers
-
-      // Clock System Setup 16MHz Beispiel
-//	      // Configure one FRAM waitstate as required by the device datasheet for MCLK
-//	        // operation beyond 8MHz _before_ configuring the clock system.
-//	        FRCTL0 = FRCTLPW | NWAITS_1;
-//	        CSCTL0_H = CSKEY >> 8;                    // Unlock CS registers
-//	        CSCTL1 = DCORSEL | DCOFSEL_4;             // Set DCO to 16MHz
-//	        CSCTL2 = SELA__VLOCLK | SELS__DCOCLK | SELM__DCOCLK; // Set SMCLK = MCLK = DCO,
-//	                                                  // ACLK = VLOCLK
-//	        CSCTL3 = DIVA__1 | DIVS__1 | DIVM__1;     // Set all dividers
-//	        CSCTL0_H = 0;                             // Lock CS registers
-
-
 	  // Enable interrupts
 	  __bis_SR_register(GIE);
 
 //--------------------------------------Initialize SD card--------------------------------------------------------------------------------------------
 
-	  //_delay_cycles(100000);
 
 	    // Mount the SD Card
 	    switch( f_mount(&sdVolume, "", 0) ){
@@ -219,13 +171,12 @@ int main(void){
 	    }
 
 	      //init counter for backup --> swap out if RTC is working
-	      backupCtr = 0;
+	      //backupCtr = 0;
 
 
 //--------------------------------------Initialize ICM20948--------------------------------------------------------------------------------------------
 
 	  // Wake up the ICM20948
-	  //slaveAddress = 0x69;                  // ICM20948 address
 	  TX_Data[1] = 0x06;                      // address of PWR_MGMT_1 register
       TX_Data[0] = 0b00000000;                // set register to zero (wakes up the ICM20948) and low power off
 	  TX_ByteCtr = 2;
@@ -239,14 +190,13 @@ int main(void){
 	  i2cWrite(slaveAddress);
 
 	  TX_Data[1] = 0x06;                      // address of PWR_MGMT_1 register
-	  TX_Data[0] = 0b10000000;                // set register to zero (wakes up the ICM20948) RESET
+	  TX_Data[0] = 0b10000000;                // ICM20948 RESET
 	  TX_ByteCtr = 2;
 	  i2cWrite(slaveAddress);
 
 	  _delay_cycles(20000);
 
 	  // Wake up the ICM20948
-	  //slaveAddress = 0x69;                  // ICM20948 address
 	  TX_Data[1] = 0x06;                      // address of PWR_MGMT_1 register
 	  TX_Data[0] = 0b00000001;                //BIT6=0(wake up),BIT5=0(low power disable),BIT[2:0]=001(autoselect best clock)
 	  TX_ByteCtr = 2;
@@ -254,17 +204,8 @@ int main(void){
 
 	  _delay_cycles(20000);
 
-	  //    TX_Data[1] = 0x00;
-	  //    TX_Data[0] = 0x00;                      // register address WHO AM I CHECK
-	  //    TX_ByteCtr = 2;
-	  //    i2cWrite(slaveAddress);
-	  //    RX_ByteCtr = 2;
-	  //    i2cRead(slaveAddress);
-	  //    whoami |= RX_Data[1];
-	  //    RX_ByteCtr = 1;
-
 	  TX_Data[1] = 0x05;                      // address of LP_CONFIG register
-	  TX_Data[0] = 0b00000000;                // set ACCEL/GYRO/I2CMST to continuous
+	  TX_Data[0] = 0b01000000;                // set ACCEL/GYRO/I2CMST to continuous
 	  TX_ByteCtr = 2;
 	  i2cWrite(slaveAddress);
 
@@ -325,6 +266,261 @@ int main(void){
 	  TX_ByteCtr = 2;
 	  i2cWrite(slaveAddress);
 
+//----------------------------------magnetometer config-----------------------------------------------------------------------
+      TX_Data[1] = 0x7F;                      // address of BANK SEL register
+      TX_Data[0] = 0b00000000;                // Select BANK 0
+      TX_ByteCtr = 2;
+      i2cWrite(slaveAddress);
+
+      TX_Data[0] = 0x0F;                        // address of INT_PIN_CFG register
+      TX_ByteCtr = 1;
+      i2cWrite(slaveAddress);
+
+      RX_ByteCtr = 2;
+      i2cRead(slaveAddress);
+      register_value = RX_Data[1];
+      register_value &= ~(1<<1);              // clear BYPASS_EN BIT to deactivate I2C passthrough mode
+
+      TX_Data[1] = 0x0F;                      // address of INT_PIN_CFG register
+      TX_Data[0] = register_value;
+      TX_ByteCtr = 2;
+      i2cWrite(slaveAddress);
+
+
+      TX_Data[1] = 0x7F;                      // address of BANK SEL register
+      TX_Data[0] = 0b00110000;                // Select BANK 3
+      TX_ByteCtr = 2;
+      i2cWrite(slaveAddress);
+
+      TX_Data[0] = 0x01;                        // address of I2C_MST_CTRL register
+      TX_ByteCtr = 1;
+      i2cWrite(slaveAddress);
+
+      RX_ByteCtr = 2;
+      i2cRead(slaveAddress);
+      register_value = RX_Data[1];
+      register_value &= ~(0x0F);                 //clear bits for master clock [3:0]
+      register_value |= (0x07);                  //set bits for master clock [3:0], 0x07 corresponds to 345.6 kHz, good for up to 400 kHz
+      register_value |= (1<<4);                  //set bit [4] for NSR (next slave read). 0 = restart between reads. 1 = stop between reads.
+
+      TX_Data[1] = 0x01;                      // address of I2C_MST_CTRL register
+      TX_Data[0] = register_value;
+      TX_ByteCtr = 2;
+      i2cWrite(slaveAddress);
+
+
+      TX_Data[1] = 0x7F;                      // address of BANK SEL register
+      TX_Data[0] = 0b00000000;                // Select BANK 0
+      TX_ByteCtr = 2;
+      i2cWrite(slaveAddress);
+
+      TX_Data[0] = 0x03;                        // address of USER_CTRL register
+      TX_ByteCtr = 1;
+      i2cWrite(slaveAddress);
+
+      RX_ByteCtr = 2;
+      i2cRead(slaveAddress);
+      register_value = RX_Data[1];
+      register_value |= (1<<5);                // set BIT[5] to enable I2C master
+
+      TX_Data[1] = 0x03;                      // address of USER_CTRL register
+      TX_Data[0] = register_value;
+      TX_ByteCtr = 2;
+      i2cWrite(slaveAddress);
+
+      //Configure magnetometer as I2C Slave
+      //for readMag: addr=0x80 | address
+      //for writeMag:addr=0x00 | address
+      for(a=0;a<5;a++){
+          TX_Data[1] = 0x7F;                      // address of BANK SEL register
+          TX_Data[0] = 0b00110000;                // Select BANK 3
+          TX_ByteCtr = 2;
+          i2cWrite(slaveAddress);
+
+          TX_Data[1] = 0x13;                      // address of I2C_SLV4_ADDR register
+          TX_Data[0] = 0b10001100;                // BIT[6:0] to I2C slave address 0x0C; BIT[7] for RNW
+          TX_ByteCtr = 2;
+          i2cWrite(slaveAddress);
+
+          TX_Data[1] = 0x14;                      // address of I2C_SLV4_REG register
+          TX_Data[0] = 0b00000000;                // BIT[7:0] to register address 0x00 WIA1
+          TX_ByteCtr = 2;
+          i2cWrite(slaveAddress);
+
+          TX_Data[1] = 0x15;                      // address of I2C_SLV4_CTRL register
+          TX_Data[0] = 0b10000000;                // EN bit enable, rest disabled
+          TX_ByteCtr = 2;
+          i2cWrite(slaveAddress);
+
+
+          TX_Data[1] = 0x7F;                      // address of BANK SEL register
+          TX_Data[0] = 0b00000000;                // Select BANK 0
+          TX_ByteCtr = 2;
+          i2cWrite(slaveAddress);
+
+          slave4done = 0;
+          while(slave4done == 0){
+              TX_Data[0] = 0x17;                        // address of I2C_MST_STATUS register
+              TX_ByteCtr = 1;
+              i2cWrite(slaveAddress);
+
+              RX_ByteCtr = 2;
+              i2cRead(slaveAddress);
+              register_value = RX_Data[1];
+
+              if(register_value & (1<<6)){
+                  slave4done = 2;
+              }
+              else{
+                 count++;
+                 if(count == 1000){
+                     slave4done = 1;
+                     count = 0;
+                 }
+              }
+          }
+
+          TX_Data[1] = 0x7F;                      // address of BANK SEL register
+          TX_Data[0] = 0b00110000;                // Select BANK 3
+          TX_ByteCtr = 2;
+          i2cWrite(slaveAddress);
+
+          TX_Data[0] = 0x17;                        // address of I2C_SLV4_DI register
+          TX_ByteCtr = 1;
+          i2cWrite(slaveAddress);
+
+          RX_ByteCtr = 2;
+          i2cRead(slaveAddress);            //MagWhoIAm1: register_value== 48h?
+          whoami = RX_Data[1];              //MagWhoIAm2: register_value== 09h?
+          if(whoami != 0){
+              a = a + 6;                    //Mag seems to work --> exit reset loop
+                                            //+6 to debug loop counter
+          }
+
+
+          //reset I2C Master
+          TX_Data[1] = 0x7F;                      // address of BANK SEL register
+          TX_Data[0] = 0b00000000;                // Select BANK 0
+          TX_ByteCtr = 2;
+          i2cWrite(slaveAddress);
+
+          TX_Data[0] = 0x03;                        // address of USER_CTRL register
+          TX_ByteCtr = 1;
+          i2cWrite(slaveAddress);
+
+          RX_ByteCtr = 2;
+          i2cRead(slaveAddress);
+          register_value = RX_Data[1];
+          register_value |= (1<<1);
+
+          TX_Data[1] = 0x03;                      // address of USER_CTRL register
+          TX_Data[0] = register_value;
+          TX_ByteCtr = 2;
+          i2cWrite(slaveAddress);
+          _delay_cycles(50000);
+
+          TX_Data[0] = 0x03;                        // address of USER_CTRL register
+          TX_ByteCtr = 1;
+          i2cWrite(slaveAddress);
+
+          RX_ByteCtr = 2;
+          i2cRead(slaveAddress);
+          register_value = RX_Data[1];
+          register_value |= (1<<5);                // set BIT[5] to enable I2C master
+
+          TX_Data[1] = 0x03;                      // address of USER_CTRL register
+          TX_Data[0] = register_value;
+          TX_ByteCtr = 2;
+          i2cWrite(slaveAddress);
+      }
+
+      if(a == 5 && whoami == 0){
+          while(1){
+              P4OUT ^= BIT6;
+              _delay_cycles(500000);
+          }
+      }
+
+
+      //switch Mag to Mode4: 100Hz continuous measurement
+        TX_Data[1] = 0x7F;                      // address of BANK SEL register
+        TX_Data[0] = 0b00110000;                // Select BANK 3
+        TX_ByteCtr = 2;
+        i2cWrite(slaveAddress);
+
+        TX_Data[1] = 0x13;                      // address of I2C_SLV4_ADDR register
+        TX_Data[0] = 0b00001100;                // BIT[6:0] to I2C slave address 0x0C; BIT[7] for RNW
+        TX_ByteCtr = 2;
+        i2cWrite(slaveAddress);
+
+        TX_Data[1] = 0x14;                      // address of I2C_SLV4_REG register
+        TX_Data[0] = 0b00110001;                // BIT[7:0] to register address 0x31 -->AK09916_REG_CNTL2
+        TX_ByteCtr = 2;
+        i2cWrite(slaveAddress);
+
+        TX_Data[1] = 0x16;                      // address of I2C_SLV4_DO register
+        TX_Data[0] = 0b00001000;                // BIT[7:0] to mode 4: 100Hz continuous measurement
+        TX_ByteCtr = 2;
+        i2cWrite(slaveAddress);
+
+        TX_Data[1] = 0x15;                      // address of I2C_SLV4_CTRL register
+        TX_Data[0] = 0b10000000;                // EN bit enable, rest disabled
+        TX_ByteCtr = 2;
+        i2cWrite(slaveAddress);
+
+
+        TX_Data[1] = 0x7F;                      // address of BANK SEL register
+        TX_Data[0] = 0b00000000;                // Select BANK 0
+        TX_ByteCtr = 2;
+        i2cWrite(slaveAddress);
+
+        slave4done = 0;
+        while(slave4done == 0){
+            TX_Data[0] = 0x17;                        // address of I2C_MST_STATUS register
+            TX_ByteCtr = 1;
+            i2cWrite(slaveAddress);
+
+            RX_ByteCtr = 2;
+            i2cRead(slaveAddress);
+            register_value = RX_Data[1];
+
+            if(register_value & (1<<6)){
+                slave4done = 2;
+            }
+            else{
+               count++;
+               if(count == 1000){
+                   slave4done = 1;
+                   count = 0;
+               }
+            }
+        }
+
+        //configure Mag as slave0
+        TX_Data[1] = 0x7F;                      // address of BANK SEL register
+        TX_Data[0] = 0b00110000;                // Select BANK 3
+        TX_ByteCtr = 2;
+        i2cWrite(slaveAddress);
+
+        TX_Data[1] = 0x03;                      // address of I2C_SLV0_ADDR register
+        TX_Data[0] = 0b10001100;                // BIT[6:0] to I2C slave address 0x0C; BIT[7] for RNW(read mode)
+        TX_ByteCtr = 2;
+        i2cWrite(slaveAddress);
+
+        TX_Data[1] = 0x04;                      // address of I2C_SLV0_REG register
+        TX_Data[0] = 0b00010000;                // BIT[7:0] to register address 0x10 -->AK09916_REG_ST1
+        TX_ByteCtr = 2;
+        i2cWrite(slaveAddress);
+
+        TX_Data[1] = 0x05;                      // address of I2C_SLV0_CTRL register
+        TX_Data[0] = 0b10001001;                // BITS[3:0] for number of transmitted bytes(9),BIT[7] enable reading
+        TX_ByteCtr = 2;
+        i2cWrite(slaveAddress);
+
+
+
+
+
 	  TX_Data[1] = 0x7F;                      // address of BANK SEL register
 	  TX_Data[0] = 0b00000000;                // Select BANK 0
 	  TX_ByteCtr = 2;
@@ -351,14 +547,11 @@ int main(void){
 	          if(measurementInit == 0){
 	          //measurement init phase = creating file, opening file
 
-	              //char filename[] = "LOG2_00.CSV";
 	              char filename[] = "RAW_00.CSV";
 	              FILINFO fno;
 	              FRESULT fr;
 	              uint8_t i;
 	              for(i = 0; i < 100; i++){
-	                  //filename[5] = i / 10 + '0';
-	                  //filename[6] = i % 10 + '0';
 	                  filename[4] = i / 10 + '0';
 	                  filename[5] = i % 10 + '0';
 	                  fr = f_stat(filename, &fno);
@@ -380,7 +573,7 @@ int main(void){
 	                  f_lseek(&logfile, logfile.fsize);           // Move forward by filesize; logfile.fsize+1 is not needed in this application
 	              }
 	              f_printf(&logfile, "%d,%s,%d,%s\n",AccelSensitivity,"g",GyroSensitivity,"dps");
-	              f_printf(&logfile, "%s,%s,%s,%s,%s,%s\n", "xAccel","yAccel","zAccel","xGyro","yGyro","zGyro");
+	              f_printf(&logfile, "%s,%s,%s,%s,%s,%s,%s,%s,%s\n", "xAccel","yAccel","zAccel","xGyro","yGyro","zGyro","xMag","yMag","zMag");
 
 	              P1OUT |= BIT0;                  //LED2 on
 	              measurementInit++;
@@ -389,34 +582,61 @@ int main(void){
 	          //writing data to file
 
 	              // Point to the ACCEL_XOUT_H register in the ICM20948
-	              slaveAddress = 0x69;                      // ICM20948 address
 	              TX_Data[0] = 0x2D;                        // register address
 	              TX_ByteCtr = 1;
 	              i2cWrite(slaveAddress);
 
-	              slaveAddress = 0x69;                      // ICM20948 address
-	              RX_ByteCtr = 12;
+	              RX_ByteCtr = 23;
 	              i2cRead(slaveAddress);
 
 	              __disable_interrupt();                    // prevent getting new sensor data while saving values
 
-	              xAccel  = RX_Data[11] << 8;               // MSB
-	              xAccel |= RX_Data[10];                    // LSB
-	              yAccel  = RX_Data[9] << 8;
-	              yAccel |= RX_Data[8];
-	              zAccel  = RX_Data[7] << 8;
-	              zAccel |= RX_Data[6];
-	              xGyro  = RX_Data[5] << 8;
-	              xGyro |= RX_Data[4];
-	              yGyro  = RX_Data[3] << 8;
-	              yGyro |= RX_Data[2];
-	              zGyro  = RX_Data[1] << 8;
-	              zGyro |= RX_Data[0];
-	              //Temp |= RX_Data[1] << 8;
-	              //Temp |= RX_Data[0];
+	              xAccel  = RX_Data[22] << 8;               // MSB
+	              xAccel |= RX_Data[21];                    // LSB
+	              yAccel  = RX_Data[20] << 8;
+	              yAccel |= RX_Data[19];
+	              zAccel  = RX_Data[18] << 8;
+	              zAccel |= RX_Data[17];
+	              xGyro  = RX_Data[16] << 8;
+	              xGyro |= RX_Data[15];
+	              yGyro  = RX_Data[14] << 8;
+	              yGyro |= RX_Data[13];
+	              zGyro  = RX_Data[12] << 8;
+	              zGyro |= RX_Data[11];
+	              Temp  = RX_Data[10] << 8;
+	              Temp |= RX_Data[9];
+	              magstat1 = RX_Data[8];
+	              magstat2 = RX_Data[0];
+	              if(!(magstat2 & (1<<3))){
+	              xMag = RX_Data[7];               // magnetometer puts data out in little endian
+	              xMag  |= RX_Data[6] << 8;
+	              yMag = RX_Data[5];
+	              yMag  |= RX_Data[4] << 8;
+	              zMag = RX_Data[3];
+	              zMag  |= RX_Data[2] << 8;
+	              }
 
 
-	              f_printf(&logfile, "%d,%d,%d,%d,%d,%d\n", xAccel,yAccel,zAccel,xGyro,yGyro,zGyro);
+/*
+ * self.axRaw = ((buff[0] << 8) | (buff[1] & 0xFF))
+        self.ayRaw = ((buff[2] << 8) | (buff[3] & 0xFF))
+        self.azRaw = ((buff[4] << 8) | (buff[5] & 0xFF))
+
+        self.gxRaw = ((buff[6] << 8) | (buff[7] & 0xFF))
+        self.gyRaw = ((buff[8] << 8) | (buff[9] & 0xFF))
+        self.gzRaw = ((buff[10] << 8) | (buff[11] & 0xFF))
+
+        self.tmpRaw = ((buff[12] << 8) | (buff[13] & 0xFF))
+
+        self.magStat1 = buff[14]
+        self.mxRaw = ((buff[16] << 8) | (buff[15] & 0xFF)) # Mag data is read little endian
+        self.myRaw = ((buff[18] << 8) | (buff[17] & 0xFF))
+        self.mzRaw = ((buff[20] << 8) | (buff[19] & 0xFF))
+        self.magStat2 = buff[22]
+ */
+
+
+	              f_printf(&logfile, "%d,%d,%d,%d,%d,%d,%d,%d,%d\n", xAccel,yAccel,zAccel,xGyro,yGyro,zGyro,xMag,yMag,zMag);
 
 	              backupCtr++;
 	              if(backupCtr == 500){
@@ -432,10 +652,8 @@ int main(void){
 //	                  backupCtr = 0;
 //	              }
 
-
 	              __enable_interrupt();
 
-	              //__no_operation();                            // Set breakpoint >>here<< and read
 	          }
 	      }
 
@@ -486,17 +704,10 @@ __interrupt void USCI_B0_ISR(void)
 
 
 /**********************************************************************************************/
-//Switch2 interrupt
-//#pragma vector = PORT1_VECTOR
-//__interrupt void ISR_Port1_S2(void){
-//    f_close(&logfile);          // Close the file
-//    P1OUT |= BIT0;              // LED2 on
-//    P4IFG &= ~BIT5;             // clear flag
-//    while(1);
-//}
 
 #pragma vector = PORT4_VECTOR
 __interrupt void ISR_Port4_S1(void){
+
     if(mode == 1){                  //button press in standby mode
         P1OUT &= ~BIT0;             //LED2 off
         mode = 2;                   //switch to measurement mode
@@ -514,4 +725,6 @@ __interrupt void ISR_Port4_S1(void){
         mode = 1;
         P4IFG &= ~BIT5;             // clear flag
     }
+    _delay_cycles(800000);
+    _delay_cycles(800000);
 }
