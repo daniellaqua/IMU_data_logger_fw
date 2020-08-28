@@ -3,6 +3,11 @@
 #include "./FatFS/ff.h"
 #include "./FatFS/diskio.h"
 
+#define SW1 BIT0 //Port3
+#define SW2 BIT5 //Port1
+#define SW3 BIT4 //Port1
+#define SW4 BIT3 //Port1
+
 //SD card variables
 FATFS sdVolume;     // FatFs work area needed for each volume
 FIL logfile;        // File object needed for each open file
@@ -19,6 +24,7 @@ unsigned char TX_ByteCtr = 0;
 unsigned char slaveAddress = 0x69;  // Set slave address for ICM20948 0x68 for ADD pin=0/0x69 for ADD pin=1
 unsigned int G_MODE;
 unsigned int DPS_MODE;
+int sensorsetting = 0b0000; // DIPswitch position to control sensor mode(accel+gyro setting)
 int xAccel = 0;
 int yAccel = 0;
 int zAccel = 0;
@@ -43,8 +49,8 @@ void i2cRead(unsigned char);
 
 //*********************************************************************************************
 //select sensitivity for sensors
-const unsigned int AccelSensitivity = 2;
-const unsigned int GyroSensitivity = 250;
+unsigned int AccelSensitivity = 2;
+unsigned int GyroSensitivity = 250;
 
 //*********************************************************************************************
 //helper function to initialize USCIB0 I2C
@@ -86,6 +92,146 @@ void i2cRead(unsigned char address)
     //__bis_SR_register(GIE);    // sleep until UCB0RXIFG is set ...
 }
 
+//*********************************************************************************************
+//helper function to read DIP switch postion for setting accelerometer+gyro modes
+void checkDIPswitch(){
+    if(!(P3IN & SW1)){
+        sensorsetting |= (1<<3);
+    }
+    else{
+        sensorsetting &= ~(1<<3);
+    }
+    if(!(P1IN & SW2)){
+        sensorsetting |= (1<<2);
+    }
+    else{
+        sensorsetting &= ~(1<<2);
+    }
+    if(!(P1IN & SW3)){
+        sensorsetting |= (1<<1);
+    }
+    else{
+        sensorsetting &= ~(1<<1);
+    }
+    if(!(P1IN & SW4)){
+        sensorsetting |= (1<<0);
+    }
+    else{
+        sensorsetting &= ~(1<<0);
+    }
+
+    switch(sensorsetting){
+        case 0:
+            AccelSensitivity = 2;
+            GyroSensitivity = 250;
+            break;
+        case 1:
+            AccelSensitivity = 4;
+            GyroSensitivity = 250;
+            break;
+        case 2:
+            AccelSensitivity = 8;
+            GyroSensitivity = 250;
+            break;
+        case 3:
+            AccelSensitivity = 16;
+            GyroSensitivity = 250;
+            break;
+        case 4:
+            AccelSensitivity = 2;
+            GyroSensitivity = 500;
+            break;
+        case 5:
+            AccelSensitivity = 4;
+            GyroSensitivity = 500;
+            break;
+        case 6:
+            AccelSensitivity = 8;
+            GyroSensitivity = 500;
+            break;
+        case 7:
+            AccelSensitivity = 16;
+            GyroSensitivity = 500;
+            break;
+        case 8:
+            AccelSensitivity = 2;
+            GyroSensitivity = 1000;
+            break;
+        case 9:
+            AccelSensitivity = 4;
+            GyroSensitivity = 1000;
+            break;
+        case 10:
+            AccelSensitivity = 8;
+            GyroSensitivity = 1000;
+            break;
+        case 11:
+            AccelSensitivity = 16;
+            GyroSensitivity = 1000;
+            break;
+        case 12:
+            AccelSensitivity = 2;
+            GyroSensitivity = 2000;
+            break;
+        case 13:
+            AccelSensitivity = 4;
+            GyroSensitivity = 2000;
+            break;
+        case 14:
+            AccelSensitivity = 8;
+            GyroSensitivity = 2000;
+            break;
+        case 15:
+            AccelSensitivity = 16;
+            GyroSensitivity = 2000;
+            break;
+        default:
+            P1OUT |= BIT0;
+            P4OUT &= ~BIT6;
+            while(1){                       //DIP switch position could not be read -> blinking leds
+                P1OUT ^= BIT0;
+                P4OUT ^= BIT6;
+                _delay_cycles(500000);
+            }
+    }
+
+    switch(AccelSensitivity){
+        case 2:
+            G_MODE = 0b00000000;
+            break;
+        case 4:
+            G_MODE = 0b00000010;
+            break;
+        case 8:
+            G_MODE = 0b00000100;
+            break;
+        case 16:
+            G_MODE = 0b00000110;
+            break;
+        default:
+            G_MODE = 0b00000000;
+            break;
+    }
+
+    switch(GyroSensitivity){
+        case 250:
+            DPS_MODE = 0b00000000;
+            break;
+        case 500:
+            DPS_MODE = 0b00000010;
+            break;
+        case 1000:
+            DPS_MODE = 0b00000100;
+            break;
+        case 2000:
+            DPS_MODE = 0b00000110;
+            break;
+        default:
+            DPS_MODE = 0b00000000;
+            break;
+    }
+}
+
 
 //*********************************************************************************************
 int main(void){
@@ -102,15 +248,13 @@ int main(void){
 	  P4OUT |= BIT6;							// P4.6 LED on
 	  P4OUT &= ~BIT6;                           //LED2=OFF initially
 
-	  //P1DIR &= ~BIT1;                           //set P1.1 (Switch2) to input
-	  //P1REN |= BIT1;                            //turn on resistor
-	  //P1OUT |= BIT1;                            //makes resistor a pull up
-	  //P1IES |= BIT1;                            //make sensitive to High-to-Low
-
 	  P4DIR &= ~BIT5;                           //set P4.5 (Switch1) to input
 	  P4REN |= BIT5;                            //turn on register
 	  P4OUT |= BIT5;                            //makes resistor a pull up
 	  P4IES |= BIT5;                            //make sensitive to High-to-Low
+
+	  P1DIR &= ~(BIT3+BIT4+BIT5);               //set P1.3 P1.4 P1.5 to input DIPSWITCH
+	  P3DIR &= ~BIT0;                           //set P3.0 to input DIPSWITCH
 
 	  P1SEL1 |= BIT6 + BIT7;                    //for I2C functionality P1SEL1 high,P1SEL0 low
 	  //P1SEL0|= BIT6 + BIT7;                   //for I2C functionality P1SEL1 high,P1SEL0 low
@@ -170,9 +314,6 @@ int main(void){
 	        while(1);
 	    }
 
-	      //init counter for backup --> swap out if RTC is working
-	      //backupCtr = 0;
-
 
 //--------------------------------------Initialize ICM20948--------------------------------------------------------------------------------------------
 
@@ -209,47 +350,13 @@ int main(void){
 	  TX_ByteCtr = 2;
 	  i2cWrite(slaveAddress);
 
+	  //check switch setting for accel+gyro modes
+	  checkDIPswitch();
+
 	  TX_Data[1] = 0x7F;                      // address of BANK SEL register
 	  TX_Data[0] = 0b00100000;                // Select BANK 2
 	  TX_ByteCtr = 2;
 	  i2cWrite(slaveAddress);
-
-	  switch(AccelSensitivity){
-	      case 2:
-	          G_MODE = 0b00000000;
-	          break;
-	      case 4:
-	          G_MODE = 0b00000010;
-	          break;
-	      case 8:
-	          G_MODE = 0b00000100;
-	          break;
-	      case 16:
-	          G_MODE = 0b00000110;
-	          break;
-	      default:
-	          G_MODE = 0b00000000;
-	          break;
-	  }
-
-	  switch(GyroSensitivity){
-	      case 250:
-	          DPS_MODE = 0b00000000;
-	          break;
-	      case 500:
-	          DPS_MODE = 0b00000010;
-	          break;
-	      case 1000:
-	          DPS_MODE = 0b00000100;
-	          break;
-	      case 2000:
-	          DPS_MODE = 0b00000110;
-	          break;
-	      default:
-	          DPS_MODE = 0b00000000;
-	          break;
-	  }
-
 
 	  TX_Data[1] = 0x14;                      // address of ACCEL_CONFIG_1 register
 	  TX_Data[0] = G_MODE;                    // switch to selected accel mode
@@ -545,7 +652,35 @@ int main(void){
 	      else if(mode == 2){
 	      //measurement mode including creating file, opening file, writing data to file and closing file
 	          if(measurementInit == 0){
-	          //measurement init phase = creating file, opening file
+	          //measurement init phase = check DIP switch position, creating file, opening file
+
+	              //check switch setting for accel+gyro modes
+	              checkDIPswitch();
+
+	              TX_Data[1] = 0x7F;                      // address of BANK SEL register
+	              TX_Data[0] = 0b00100000;                // Select BANK 2
+	              TX_ByteCtr = 2;
+	              i2cWrite(slaveAddress);
+
+	              TX_Data[1] = 0x14;                      // address of ACCEL_CONFIG_1 register
+	              TX_Data[0] = G_MODE;                    // switch to selected accel mode
+	              TX_ByteCtr = 2;
+	              i2cWrite(slaveAddress);
+
+	              TX_Data[1] = 0x7F;                      // address of BANK SEL register
+	              TX_Data[0] = 0b00100000;                // Select BANK 2
+	              TX_ByteCtr = 2;
+	              i2cWrite(slaveAddress);
+
+	              TX_Data[1] = 0x01;                      // address of GYRO_CONFIG_1 register
+	              TX_Data[0] = DPS_MODE;                  // switch to selected gyro mode
+	              TX_ByteCtr = 2;
+	              i2cWrite(slaveAddress);
+
+                  TX_Data[1] = 0x7F;                      // address of BANK SEL register
+                  TX_Data[0] = 0b00000000;                // Select BANK 0
+                  TX_ByteCtr = 2;
+                  i2cWrite(slaveAddress);
 
 	              char filename[] = "RAW_00.CSV";
 	              FILINFO fno;
@@ -575,7 +710,7 @@ int main(void){
 	              f_printf(&logfile, "%d,%s,%d,%s\n",AccelSensitivity,"g",GyroSensitivity,"dps");
 	              f_printf(&logfile, "%s,%s,%s,%s,%s,%s,%s,%s,%s\n", "xAccel","yAccel","zAccel","xGyro","yGyro","zGyro","xMag","yMag","zMag");
 
-	              P1OUT |= BIT0;                  //LED2 on
+	              //P1OUT |= BIT0;                  //LED2 on
 	              measurementInit++;
 	          }
 	          else{
@@ -616,41 +751,17 @@ int main(void){
 	              zMag  |= RX_Data[2] << 8;
 	              }
 
-
-/*
- * self.axRaw = ((buff[0] << 8) | (buff[1] & 0xFF))
-        self.ayRaw = ((buff[2] << 8) | (buff[3] & 0xFF))
-        self.azRaw = ((buff[4] << 8) | (buff[5] & 0xFF))
-
-        self.gxRaw = ((buff[6] << 8) | (buff[7] & 0xFF))
-        self.gyRaw = ((buff[8] << 8) | (buff[9] & 0xFF))
-        self.gzRaw = ((buff[10] << 8) | (buff[11] & 0xFF))
-
-        self.tmpRaw = ((buff[12] << 8) | (buff[13] & 0xFF))
-
-        self.magStat1 = buff[14]
-        self.mxRaw = ((buff[16] << 8) | (buff[15] & 0xFF)) # Mag data is read little endian
-        self.myRaw = ((buff[18] << 8) | (buff[17] & 0xFF))
-        self.mzRaw = ((buff[20] << 8) | (buff[19] & 0xFF))
-        self.magStat2 = buff[22]
- */
-
-
 	              f_printf(&logfile, "%d,%d,%d,%d,%d,%d,%d,%d,%d\n", xAccel,yAccel,zAccel,xGyro,yGyro,zGyro,xMag,yMag,zMag);
 
+	              //backup every 3000 data writes --> every ~10s
 	              backupCtr++;
-	              if(backupCtr == 500){
-	                  P1OUT ^= BIT0;              // LED2 blinking
-	                  //f_sync(&logfile);
+	              if(backupCtr%500 == 0){
+	                  P1OUT ^= BIT0;
+	              }
+	              if(backupCtr == 3000){
+	                  f_sync(&logfile);
 	                  backupCtr = 0;
 	              }
-
-	              //backup every 1000 data writes - every ~3s --> swap out if RTC is working
-//	              backupCtr++;
-//	              if(backupCtr == 1000){
-//	                  f_sync(&logfile);
-//	                  backupCtr = 0;
-//	              }
 
 	              __enable_interrupt();
 
@@ -727,4 +838,7 @@ __interrupt void ISR_Port4_S1(void){
     }
     _delay_cycles(800000);
     _delay_cycles(800000);
+    _delay_cycles(800000);
+    _delay_cycles(800000);
+
 }
