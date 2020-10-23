@@ -16,6 +16,8 @@ main_SD.obj: C:/ti/ccs1010/ccs/tools/compiler/ti-cgt-msp430_20.2.1.LTS/include/s
 main_SD.obj: C:/ti/ccs1010/ccs/tools/compiler/ti-cgt-msp430_20.2.1.LTS/include/machine/_types.h
 main_SD.obj: C:/ti/ccs1010/ccs/tools/compiler/ti-cgt-msp430_20.2.1.LTS/include/machine/_stdint.h
 main_SD.obj: C:/ti/ccs1010/ccs/tools/compiler/ti-cgt-msp430_20.2.1.LTS/include/sys/_stdint.h
+main_SD.obj: C:/ti/ccs1010/ccs/tools/compiler/ti-cgt-msp430_20.2.1.LTS/include/stdio.h
+main_SD.obj: C:/ti/ccs1010/ccs/tools/compiler/ti-cgt-msp430_20.2.1.LTS/include/stdarg.h
 main_SD.obj: .././FatFS/ff.h
 main_SD.obj: .././FatFS/integer.h
 main_SD.obj: .././FatFS/ffconf.h
@@ -37,6 +39,8 @@ C:/ti/ccs1010/ccs/tools/compiler/ti-cgt-msp430_20.2.1.LTS/include/sys/_types.h:
 C:/ti/ccs1010/ccs/tools/compiler/ti-cgt-msp430_20.2.1.LTS/include/machine/_types.h: 
 C:/ti/ccs1010/ccs/tools/compiler/ti-cgt-msp430_20.2.1.LTS/include/machine/_stdint.h: 
 C:/ti/ccs1010/ccs/tools/compiler/ti-cgt-msp430_20.2.1.LTS/include/sys/_stdint.h: 
+C:/ti/ccs1010/ccs/tools/compiler/ti-cgt-msp430_20.2.1.LTS/include/stdio.h: 
+C:/ti/ccs1010/ccs/tools/compiler/ti-cgt-msp430_20.2.1.LTS/include/stdarg.h: 
 .././FatFS/ff.h: 
 .././FatFS/integer.h: 
 .././FatFS/ffconf.h: 
