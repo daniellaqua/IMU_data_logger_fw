@@ -206,10 +206,11 @@ void i2cInit(void)
 
     // Configure USCI_B0 for I2C mode
      UCB0CTLW0 = UCSWRST;                      // put eUSCI_B in reset state
-     UCB0CTLW0 |= UCMODE_3 | UCMST | UCSSEL__SMCLK; // I2C master mode, SMCLK
-     UCB0BRW = 0x2;                            // baudrate = SMCLK / 2
+     UCB0CTLW0 |= UCMODE_3 | UCMST | UCSSEL__SMCLK | UCSYNC; // I2C master mode, SMCLK
+     //UCB0BRW = 0x2;                            // baudrate = SMCLK / 2
+     UCB0BRW = 20;                            // baudrate = SMCLK / 20 = ~400kHz
      UCB0CTLW0 &= ~UCSWRST;                    // clear reset register
-     UCB0IE |= UCTXIE0 | UCNACKIE;             // transmit and NACK interrupt enable
+     //UCB0IE |= UCTXIE0 | UCNACKIE;             // transmit and NACK interrupt enable
 }
 
 //*********************************************************************************************
@@ -577,30 +578,7 @@ int main(void){
 
       P1SEL1 |= BIT6 + BIT7;                    //for I2C functionality P1SEL1 high,P1SEL0 low
       //P1SEL0|= BIT6 + BIT7;                   //for I2C functionality P1SEL1 high,P1SEL0 low
-/*
-      //Port initialization for SPI operation
-      RTC_SPI_SEL |= RTC_SPI_CLK | RTC_SPI_SOMI | RTC_SPI_SIMO;
-      RTC_SPI_DIR |= RTC_SPI_CLK | RTC_SPI_SIMO;
 
-      RTC_CS_SEL &= ~RTC_CS;
-      RTC_CS_OUT |= RTC_CS;
-      RTC_CS_DIR |= RTC_CS;
-
-      RTC_SPI_REN |= RTC_SPI_SOMI | RTC_SPI_SIMO;
-      RTC_SPI_OUT |= RTC_SPI_SOMI | RTC_SPI_SIMO;
-
-      //Initialize USCI_A1 for SPI Master operation
-      UCA1CTLW0 = UCSWRST;                                    //Put state machine in reset
-      //UCMODE_2 == 4pin SPI(including chip select) and slave is active low
-      UCA1CTLW0 |= UCCKPL | UCMSB | UCMST | UCSYNC;//; | UCMODE_2;// | UCSSEL_2;  //3-pin, 8-bit SPI master
-      //Clock polarity select - The inactive state is high
-      UCA1CTLW0 |= UCSSEL_2;                          //Use SMCLK, keep RESET
-      UCA1BR0 = 3;                                           //Initial SPI clock must be <400kHz
-      UCA1BR1 = 0;                                            //f_UCxCLK = 1MHz/(3+1) = 250kHz
-      UCA1CTLW0 &= ~UCSWRST;                                   //Release USCI state machine
-      UCA1IFG &= ~UCRXIFG;
-      UCA1IE |= UCRXIE;                         // Enable USCI_A1 RX interrupt
-*/
       // Disable the GPIO power-on default high-impedance mode to activate
       // previously configured port settings
       PM5CTL0 &= ~LOCKLPM5;
@@ -608,18 +586,40 @@ int main(void){
       P4IE |= BIT5;               //Enable P4.5 IRQ (Switch1)
       P4IFG &= ~BIT5;             //clear flag
 
-      // Initialize the I2C state machine
-      i2cInit();
+
 
 //--------------------------------------CLOCK Config----------------------------------------------------------------------------
 
+/*
+      //set clock to 16MHz
+      // Configure one FRAM waitstate as required by the device datasheet for MCLK
+      // operation beyond 8MHz _before_ configuring the clock system.
+      FRCTL0 = FRCTLPW | NWAITS_1;
 
+      // Clock System Setup
+      CSCTL0_H = CSKEY_H;                    // Unlock CS registers
+      CSCTL1 = DCOFSEL_0;             // Set DCO to 1MHz
+      CSCTL2 = SELA__LFXTCLK | SELS__DCOCLK | SELM__DCOCLK;
+      CSCTL3 = DIVA__4 | DIVS__4 | DIVM__4;     // Set all dividers
+      CSCTL1 = DCORSEL | DCOFSEL_4;             // Set DCO to 16MHz
+
+      __delay_cycles(60);
+      CSCTL3 = DIVA__1 | DIVS__1 | DIVM__1;     // Set all dividers
+      CSCTL0_H = 0;                             // Lock CS registers
+*/
+
+
+      //set clock to 8MHz
       CSCTL0_H = CSKEY >> 8;                    // Unlock CS registers
       CSCTL1 = DCOFSEL_6;                       // Set DCO to 8MHz
       CSCTL2 = SELA__LFXTCLK | SELS__DCOCLK | SELM__DCOCLK; // Set ACLK = LFXTCLK; SMCLK = MCLK = DCO
       CSCTL3 = DIVA__1 | DIVS__1 | DIVM__1;     // Set all dividers to 1
       CSCTL4 &= ~LFXTOFF;                       // Turn on LFXT
       CSCTL0_H = 0;                             // Lock CS registers
+
+
+      // Initialize the I2C state machine
+      i2cInit();
 
       // Enable interrupts
       __bis_SR_register(GIE);
