@@ -208,9 +208,10 @@ void i2cInit(void)
      UCB0CTLW0 = UCSWRST;                      // put eUSCI_B in reset state
      UCB0CTLW0 |= UCMODE_3 | UCMST | UCSSEL__SMCLK | UCSYNC; // I2C master mode, SMCLK
      //UCB0BRW = 0x2;                            // baudrate = SMCLK / 2
-     UCB0BRW = 20;                            // baudrate = SMCLK / 20 = ~400kHz
+     //UCB0BRW = 0x50;                            // baudrate = SMCLK / 20 = ~400kHz
+     UCB0BRW = 8;                            // baudrate = SMCLK / 20 = ~400kHz
      UCB0CTLW0 &= ~UCSWRST;                    // clear reset register
-     //UCB0IE |= UCTXIE0 | UCNACKIE;             // transmit and NACK interrupt enable
+     UCB0IE |= UCTXIE0 | UCNACKIE;             // transmit and NACK interrupt enable
 }
 
 //*********************************************************************************************
@@ -291,6 +292,7 @@ SPI_Mode SPI_Master_WriteReg(uint8_t reg_addr, uint8_t *reg_data, uint8_t count)
         UCA1CTLW0 |= UCSSEL_2;                         //Use SMCLK, keep RESET
         UCA1BR0 = 3;                                   //Initial SPI clock must be <400kHz
         UCA1BR1 = 0;                                   //f_UCxCLK = 1MHz/(3+1) = 250kHz
+        //UCA1BRW = 25;
         UCA1CTLW0 &= ~UCSWRST;                         //Release USCI state machine
         UCA1IFG &= ~UCRXIFG;
         UCA1IE |= UCRXIE;                              // Enable USCI_A1 RX interrupt
@@ -332,6 +334,7 @@ SPI_Mode SPI_Master_ReadReg(uint8_t reg_addr, uint8_t count)
         UCA1CTLW0 |= UCSSEL_2;                              //Use SMCLK, keep RESET
         UCA1BR0 = 3;                                        //Initial SPI clock must be <400kHz
         UCA1BR1 = 0;                                        //f_UCxCLK = 1MHz/(3+1) = 250kHz
+        //UCA1BRW = 25;
         UCA1CTLW0 &= ~UCSWRST;                              //Release USCI state machine
         UCA1IFG &= ~UCRXIFG;
         UCA1IE |= UCRXIE;                                   // Enable USCI_A1 RX interrupt
@@ -606,9 +609,15 @@ int main(void){
       __delay_cycles(60);
       CSCTL3 = DIVA__1 | DIVS__1 | DIVM__1;     // Set all dividers
       CSCTL0_H = 0;                             // Lock CS registers
+
+
+      //set clock to 8MHz
+      CSCTL0_H = CSKEY >> 8;                    // Unlock CS registers
+      CSCTL1 = DCOFSEL_6;                       // Set DCO to 8MHz
+      CSCTL2 = SELA__VLOCLK | SELS__DCOCLK | SELM__DCOCLK; // Set ACLK = LFXTCLK; SMCLK = MCLK = DCO
+      CSCTL3 = DIVA__1 | DIVS__1 | DIVM__1;     // Set all dividers to 1
+      CSCTL0_H = 0;                             // Lock CS registers
 */
-
-
       //set clock to 8MHz
       CSCTL0_H = CSKEY >> 8;                    // Unlock CS registers
       CSCTL1 = DCOFSEL_6;                       // Set DCO to 8MHz
@@ -679,7 +688,7 @@ int main(void){
       TX_ByteCtr = 2;
       i2cWrite(slaveAddress);
 
-      _delay_cycles(20000);
+      _delay_cycles(800000);
 
       // Wake up the ICM20948
       TX_Data[1] = 0x06;                      // address of PWR_MGMT_1 register
@@ -687,7 +696,7 @@ int main(void){
       TX_ByteCtr = 2;
       i2cWrite(slaveAddress);
 
-      _delay_cycles(20000);
+      _delay_cycles(80000);
 
       TX_Data[1] = 0x05;                      // address of LP_CONFIG register
       TX_Data[0] = 0b01000000;                // set ACCEL/GYRO/I2CMST to continuous

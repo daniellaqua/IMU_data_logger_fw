@@ -1,7 +1,7 @@
 ******************************************************************************
                   MSP430 Linker PC v20.2.1                     
 ******************************************************************************
->> Linked Fri Oct 23 13:44:52 2020
+>> Linked Wed Jan  6 13:44:27 2021
 
 OUTPUT FILE NAME:   <FR5969_MoveH_fw.out>
 ENTRY POINT SYMBOL: "_c_int00_noargs_mpu"  address: 00004604
@@ -19,7 +19,7 @@ MEMORY CONFIGURATION
   INFOB                 00001900   00000080  00000000  00000080  RWIX
   INFOA                 00001980   00000080  00000000  00000080  RWIX
   RAM                   00001c00   00000800  00000584  0000027c  RWIX
-  FRAM                  00004400   0000bb80  00000583  0000b5fd  RWIX
+  FRAM                  00004400   0000bb80  0000058d  0000b5f3  RWIX
   JTAGSIGNATURE         0000ff80   00000004  00000004  00000000  RWIX  ffff 
   BSLSIGNATURE          0000ff84   00000004  00000004  00000000  RWIX  ffff 
   IPESIGNATURE          0000ff88   00000008  00000008  00000000  RWIX  ffff 
@@ -94,12 +94,12 @@ section   page    origin      length       input sections
 
 .sysmem    0    00004400    00000000     UNINITIALIZED
 
-.cinit     0    0000494a    0000003a     
-                  0000494a    00000017     (.cinit..data.load) [load image, compression = lzss]
-                  00004961    00000001     --HOLE-- [fill = 0]
-                  00004962    0000000c     (__TI_handler_table)
-                  0000496e    00000006     (.cinit..bss.load) [load image, compression = zero_init]
-                  00004974    00000010     (__TI_cinit_table)
+.cinit     0    00004954    0000003a     
+                  00004954    00000017     (.cinit..data.load) [load image, compression = lzss]
+                  0000496b    00000001     --HOLE-- [fill = 0]
+                  0000496c    0000000c     (__TI_handler_table)
+                  00004978    00000006     (.cinit..bss.load) [load image, compression = zero_init]
+                  0000497e    00000010     (__TI_cinit_table)
 
 .init_array 
 *          0    00004400    00000000     UNINITIALIZED
@@ -145,7 +145,7 @@ section   page    origin      length       input sections
                   00002360    00000004     rts430x_lc_rd_eabi.lib : boot.c.obj (.stack)
                   00002364    0000009c     --HOLE--
 
-.text.1    0    0000462c    0000022c     
+.text.1    0    0000462c    00000236     
                   0000462c    0000003e     rts430x_lc_rd_eabi.lib : lsl32.asm.obj (.text:l_lsl_const)
                   0000466a    0000003e                            : lsr32.asm.obj (.text:l_lsr_const)
                   000046a8    00000036     diskio.obj (.text:disk_ioctl)
@@ -160,8 +160,9 @@ section   page    origin      length       input sections
                   00004816    00000016     rts430x_lc_rd_eabi.lib : div16u.asm.obj (.text)
                   0000482c    00000012                            : copy_decompress_none.c.obj (.text:decompress:none:__TI_decompress_none)
                   0000483e    00000012                            : memcpy.c.obj (.text:memcpy)
-                  00004850    00000006                            : exit.c.obj (.text:abort)
-                  00004856    00000002                            : startup.c.obj (.text:_system_post_cinit)
+                  00004850    0000000c     diskio.obj (.text:rcvr_spi_m$1)
+                  0000485c    00000004     rts430x_lc_rd_eabi.lib : pre_init.c.obj (.text:_system_pre_init)
+                  00004860    00000002                            : startup.c.obj (.text:_system_post_cinit)
 
 $fill000   0    0000ff80    00000004     
                   0000ff80    00000004     --HOLE-- [fill = ffff]
@@ -260,54 +261,53 @@ SYSNMI     0    0000fffc    00000002
 .reset     0    0000fffe    00000002     
                   0000fffe    00000002     rts430x_lc_rd_eabi.lib : boot.c.obj (.reset)
 
-.const     0    00004858    000000f1     
-                  00004858    000000e6     <whole-program> (.const:.string)
-                  0000493e    0000000b     main_SD.obj (.const:.string:$P$T0$1$0)
+.const     0    00004862    000000f1     
+                  00004862    000000e6     <whole-program> (.const:.string)
+                  00004948    0000000b     main_SD.obj (.const:.string:$P$T0$1$0)
 
 .text.2    0    00010000    00004000     
-                  00010000    00000d42     main_SD.obj (.text:main)
-                  00010d42    00000a80     ff.obj (.text:find_volume$2)
-                  000117c2    000004be     ff.obj (.text:f_write)
-                  00011c80    000004a0     ff.obj (.text:f_printf)
-                  00012120    0000030a     ff.obj (.text:dir_register$2)
-                  0001242a    000002b8     ff.obj (.text:f_stat)
-                  000126e2    000002ae     ff.obj (.text:f_lseek)
-                  00012990    0000026c     ff.obj (.text:dir_next$2)
-                  00012bfc    000001f8     ff.obj (.text:f_open)
-                  00012df4    000001cc     ff.obj (.text:create_name$2)
-                  00012fc0    0000017c     ff.obj (.text:f_sync)
-                  0001313c    0000017c     ff.obj (.text:put_fat)
-                  000132b8    00000152     ff.obj (.text:get_fat)
-                  0001340a    0000014a     ff.obj (.text:sync_fs$2)
-                  00013554    00000144     ff.obj (.text:follow_path$2)
-                  00013698    0000012c     ff.obj (.text:create_chain$2)
-                  000137c4    00000126     ff.obj (.text:dir_sdi$2)
-                  000138ea    000000f0     diskio.obj (.text:disk_read)
-                  000139da    000000e0     diskio.obj (.text:disk_write)
-                  00013aba    000000a4     ff.obj (.text:remove_chain$2)
-                  00013b5e    0000008a     ff.obj (.text:sync_window$2)
-                  00013be8    00000082     ff.obj (.text:check_fs$2)
-                  00013c6a    0000007e     diskio.obj (.text:send_cmd$1)
-                  00013ce8    00000076     rts430x_lc_rd_eabi.lib : copy_decompress_lzss.c.obj (.text:decompress:lzss:__TI_decompress_lzss)
-                  00013d5e    00000058                            : div32u.asm.obj (.text)
-                  00013db6    00000056     diskio.obj (.text:power_on$1)
-                  00013e0c    00000056     diskio.obj (.text:xmit_datablock$1)
-                  00013e62    00000054     rts430x_lc_rd_eabi.lib : autoinit.c.obj (.text:__TI_auto_init_nobinit_nopinit_hold_wdt:__TI_auto_init_nobinit_nopinit_hold_wdt)
-                  00013eb6    00000054     ff.obj (.text:move_window$2)
-                  00013f0a    0000004e     ff.obj (.text:putc_bfd$2)
-                  00013f58    0000004c     diskio.obj (.text:rcvr_datablock$1)
-                  00013fa4    0000004c     diskio.obj (.text:send_initial_clock_train$1)
-                  00013ff0    0000000c     diskio.obj (.text:rcvr_spi_m$1)
-                  00013ffc    00000004     rts430x_lc_rd_eabi.lib : pre_init.c.obj (.text:_system_pre_init)
+                  00010000    00000d4c     main_SD.obj (.text:main)
+                  00010d4c    00000a80     ff.obj (.text:find_volume$2)
+                  000117cc    000004be     ff.obj (.text:f_write)
+                  00011c8a    000004a0     ff.obj (.text:f_printf)
+                  0001212a    0000030a     ff.obj (.text:dir_register$2)
+                  00012434    000002b8     ff.obj (.text:f_stat)
+                  000126ec    000002ae     ff.obj (.text:f_lseek)
+                  0001299a    0000026c     ff.obj (.text:dir_next$2)
+                  00012c06    000001f8     ff.obj (.text:f_open)
+                  00012dfe    000001cc     ff.obj (.text:create_name$2)
+                  00012fca    0000017c     ff.obj (.text:f_sync)
+                  00013146    0000017c     ff.obj (.text:put_fat)
+                  000132c2    00000152     ff.obj (.text:get_fat)
+                  00013414    0000014a     ff.obj (.text:sync_fs$2)
+                  0001355e    00000144     ff.obj (.text:follow_path$2)
+                  000136a2    0000012c     ff.obj (.text:create_chain$2)
+                  000137ce    00000126     ff.obj (.text:dir_sdi$2)
+                  000138f4    000000f0     diskio.obj (.text:disk_read)
+                  000139e4    000000e0     diskio.obj (.text:disk_write)
+                  00013ac4    000000a4     ff.obj (.text:remove_chain$2)
+                  00013b68    0000008a     ff.obj (.text:sync_window$2)
+                  00013bf2    00000082     ff.obj (.text:check_fs$2)
+                  00013c74    0000007e     diskio.obj (.text:send_cmd$1)
+                  00013cf2    00000076     rts430x_lc_rd_eabi.lib : copy_decompress_lzss.c.obj (.text:decompress:lzss:__TI_decompress_lzss)
+                  00013d68    00000058                            : div32u.asm.obj (.text)
+                  00013dc0    00000056     diskio.obj (.text:power_on$1)
+                  00013e16    00000056     diskio.obj (.text:xmit_datablock$1)
+                  00013e6c    00000054     rts430x_lc_rd_eabi.lib : autoinit.c.obj (.text:__TI_auto_init_nobinit_nopinit_hold_wdt:__TI_auto_init_nobinit_nopinit_hold_wdt)
+                  00013ec0    00000054     ff.obj (.text:move_window$2)
+                  00013f14    0000004e     ff.obj (.text:putc_bfd$2)
+                  00013f62    0000004c     diskio.obj (.text:rcvr_datablock$1)
+                  00013fae    0000004c     diskio.obj (.text:send_initial_clock_train$1)
+                  00013ffa    00000006     rts430x_lc_rd_eabi.lib : exit.c.obj (.text:abort)
 
 MODULE SUMMARY
 
        Module                                   code    ro data   rw data
        ------                                   ----    -------   -------
     .\
-       main_SD.obj                              3986    11        92     
+       main_SD.obj                              3996    11        92     
     +--+----------------------------------------+-------+---------+---------+
-       Total:                                   3986    11        92     
+       Total:                                   3996    11        92     
                                                                          
     .\FatFS\
        ff.obj                                   11770   0         6      
@@ -315,17 +315,17 @@ MODULE SUMMARY
     +--+----------------------------------------+-------+---------+---------+
        Total:                                   12862   0         11     
                                                                          
-    C:\Users\MaxKo\AppData\Local\Temp\
-       {83132C08-7B5C-4938-84C7-0B6748C48847}   0       236       1148   
+    C:\Users\linal\AppData\Local\Temp\
+       {9E163A80-6951-400D-BBDB-1C1175E01898}   0       236       1148   
     +--+----------------------------------------+-------+---------+---------+
        Total:                                   0       236       1148   
                                                                          
-    C:\ti\ccs1010\ccs\ccs_base\msp430\lib\FR59xx\MSPMPU_INIT_LIB_CCS_msp430_large_code_restricted_data.lib
+    C:\ti\ccs1011\ccs\ccs_base\msp430\lib\FR59xx\MSPMPU_INIT_LIB_CCS_msp430_large_code_restricted_data.lib
        mpu_init.o                               44      0         0      
     +--+----------------------------------------+-------+---------+---------+
        Total:                                   44      0         0      
                                                                          
-    C:\ti\ccs1010\ccs\tools\compiler\ti-cgt-msp430_20.2.1.LTS\lib\rts430x_lc_rd_eabi.lib
+    C:\ti\ccs1011\ccs\tools\compiler\ti-cgt-msp430_20.2.1.LTS\lib\rts430x_lc_rd_eabi.lib
        copy_decompress_lzss.c.obj               118     0         0      
        div32u.asm.obj                           88      0         0      
        autoinit.c.obj                           84      0         0      
@@ -369,19 +369,19 @@ MODULE SUMMARY
        Stack:                                   0       0         160    
        Linker Generated:                        0       57        0      
     +--+----------------------------------------+-------+---------+---------+
-       Grand Total:                             17496   350       1411   
+       Grand Total:                             17506   350       1411   
 
 
 LINKER GENERATED COPY TABLES
 
-__TI_cinit_table @ 00004974 records: 2, size/record: 8, table size: 16
-	.data: load addr=0000494a, load size=00000017 bytes, run addr=00002086, run size=0000005e bytes, compression=lzss
-	.bss: load addr=0000496e, load size=00000006 bytes, run addr=00001c00, run size=00000486 bytes, compression=zero_init
+__TI_cinit_table @ 0000497e records: 2, size/record: 8, table size: 16
+	.data: load addr=00004954, load size=00000017 bytes, run addr=00002086, run size=0000005e bytes, compression=lzss
+	.bss: load addr=00004978, load size=00000006 bytes, run addr=00001c00, run size=00000486 bytes, compression=zero_init
 
 
 LINKER GENERATED HANDLER TABLE
 
-__TI_handler_table @ 00004962 records: 3, size/record: 4, table size: 12
+__TI_handler_table @ 0000496c records: 3, size/record: 4, table size: 12
 	index: 0, handler: __TI_zero_init
 	index: 1, handler: __TI_decompress_lzss
 	index: 2, handler: __TI_decompress_none
@@ -649,7 +649,7 @@ address   name
 000020b6  AccelSensitivity                       
 000004be  BCD2BIN                                
 000004bc  BIN2BCD                                
-00004850  C$$EXIT                                
+00013ffa  C$$EXIT                                
 0000043e  CAPTIO0CTL                             
 0000043f  CAPTIO0CTL_H                           
 0000043e  CAPTIO0CTL_L                           
@@ -1194,13 +1194,13 @@ address   name
 0000015c  WDTCTL_L                               
 00002400  __STACK_END                            
 000000a0  __STACK_SIZE                           
-00004974  __TI_CINIT_Base                        
-00004984  __TI_CINIT_Limit                       
-00004962  __TI_Handler_Table_Base                
-0000496e  __TI_Handler_Table_Limit               
+0000497e  __TI_CINIT_Base                        
+0000498e  __TI_CINIT_Limit                       
+0000496c  __TI_Handler_Table_Base                
+00004978  __TI_Handler_Table_Limit               
 00004624  __TI_ISR_TRAP                          
-00013e62  __TI_auto_init_nobinit_nopinit_hold_wdt
-00013ce8  __TI_decompress_lzss                   
+00013e6c  __TI_auto_init_nobinit_nopinit_hold_wdt
+00013cf2  __TI_decompress_lzss                   
 0000482c  __TI_decompress_none                   
 0000ffcc  __TI_int30                             
 0000ffce  __TI_int31                             
@@ -1236,10 +1236,10 @@ ffffffff  __c_args__
 000046de  __mpu_init                             
 00004736  __mspabi_divi                          
 00004816  __mspabi_divu                          
-00013d5e  __mspabi_divul                         
+00013d68  __mspabi_divul                         
 00004736  __mspabi_remi                          
 00004816  __mspabi_remu                          
-00013d5e  __mspabi_remul                         
+00013d68  __mspabi_remul                         
 00004664  __mspabi_slll_1                        
 00004640  __mspabi_slll_10                       
 0000463c  __mspabi_slll_11                       
@@ -1273,25 +1273,25 @@ ffffffff  __c_args__
 00004604  _c_int00_noargs_mpu                    
 0000fffe  _reset_vector                          
 00002360  _stack                                 
-00004856  _system_post_cinit                     
-00013ffc  _system_pre_init                       
+00004860  _system_post_cinit                     
+0000485c  _system_pre_init                       
 000020b4  a                                      
-00004850  abort                                  
+00013ffa  abort                                  
 0000208e  backupCtr                              
 000020b2  count                                  
 000046a8  disk_ioctl                             
-000138ea  disk_read                              
-000139da  disk_write                             
-000126e2  f_lseek                                
-00012bfc  f_open                                 
-00011c80  f_printf                               
-0001242a  f_stat                                 
-00012fc0  f_sync                                 
-000117c2  f_write                                
+000138f4  disk_read                              
+000139e4  disk_write                             
+000126ec  f_lseek                                
+00012c06  f_open                                 
+00011c8a  f_printf                               
+00012434  f_stat                                 
+00012fca  f_sync                                 
+000117cc  f_write                                
 00004400  fram_ipe_end                           
 00004400  fram_ipe_start                         
 00004400  fram_rx_start                          
-000132b8  get_fat                                
+000132c2  get_fat                                
 00004762  i2cRead                                
 000047d4  i2cWrite                               
 00001e2e  logfile                                
@@ -1305,7 +1305,7 @@ ffffffff  __c_args__
 00001513  mpu_sam_value                          
 00000440  mpu_segment_border1                    
 00000440  mpu_segment_border2                    
-0001313c  put_fat                                
+00013146  put_fat                                
 000020ae  register_value                         
 00001c00  sdVolume                               
 00002092  sensorsetting                          
@@ -2203,13 +2203,12 @@ address   name
 00004816  __mspabi_remu                          
 0000482c  __TI_decompress_none                   
 0000483e  memcpy                                 
-00004850  C$$EXIT                                
-00004850  abort                                  
-00004856  _system_post_cinit                     
-00004962  __TI_Handler_Table_Base                
-0000496e  __TI_Handler_Table_Limit               
-00004974  __TI_CINIT_Base                        
-00004984  __TI_CINIT_Limit                       
+0000485c  _system_pre_init                       
+00004860  _system_post_cinit                     
+0000496c  __TI_Handler_Table_Base                
+00004978  __TI_Handler_Table_Limit               
+0000497e  __TI_CINIT_Base                        
+0000498e  __TI_CINIT_Limit                       
 0000a501  mpu_ctl0_value                         
 0000ffcc  __TI_int30                             
 0000ffce  __TI_int31                             
@@ -2238,21 +2237,22 @@ address   name
 0000fffc  __TI_int54                             
 0000fffe  _reset_vector                          
 00010000  main                                   
-000117c2  f_write                                
-00011c80  f_printf                               
-0001242a  f_stat                                 
-000126e2  f_lseek                                
-00012bfc  f_open                                 
-00012fc0  f_sync                                 
-0001313c  put_fat                                
-000132b8  get_fat                                
-000138ea  disk_read                              
-000139da  disk_write                             
-00013ce8  __TI_decompress_lzss                   
-00013d5e  __mspabi_divul                         
-00013d5e  __mspabi_remul                         
-00013e62  __TI_auto_init_nobinit_nopinit_hold_wdt
-00013ffc  _system_pre_init                       
+000117cc  f_write                                
+00011c8a  f_printf                               
+00012434  f_stat                                 
+000126ec  f_lseek                                
+00012c06  f_open                                 
+00012fca  f_sync                                 
+00013146  put_fat                                
+000132c2  get_fat                                
+000138f4  disk_read                              
+000139e4  disk_write                             
+00013cf2  __TI_decompress_lzss                   
+00013d68  __mspabi_divul                         
+00013d68  __mspabi_remul                         
+00013e6c  __TI_auto_init_nobinit_nopinit_hold_wdt
+00013ffa  C$$EXIT                                
+00013ffa  abort                                  
 ffffffff  __TI_pprof_out_hndl                    
 ffffffff  __TI_prof_data_size                    
 ffffffff  __TI_prof_data_start                   

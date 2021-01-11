@@ -1,7 +1,7 @@
 ******************************************************************************
                   MSP430 Linker PC v20.2.1                     
 ******************************************************************************
->> Linked Tue Jan  5 14:25:15 2021
+>> Linked Mon Jan 11 19:11:41 2021
 
 OUTPUT FILE NAME:   <FR5969_MoveH_fw.out>
 ENTRY POINT SYMBOL: "_c_int00_noargs_mpu"  address: 00004608
@@ -19,7 +19,7 @@ MEMORY CONFIGURATION
   INFOB                 00001900   00000080  00000000  00000080  RWIX
   INFOA                 00001980   00000080  00000000  00000080  RWIX
   RAM                   00001c00   00000800  00000586  0000027a  RWIX
-  FRAM                  00004400   0000bb80  00000b69  0000b017  RWIX
+  FRAM                  00004400   0000bb80  00000b75  0000b00b  RWIX
   JTAGSIGNATURE         0000ff80   00000004  00000004  00000000  RWIX  ffff 
   BSLSIGNATURE          0000ff84   00000004  00000004  00000000  RWIX  ffff 
   IPESIGNATURE          0000ff88   00000008  00000008  00000000  RWIX  ffff 
@@ -94,12 +94,12 @@ section   page    origin      length       input sections
 
 .sysmem    0    00004400    00000000     UNINITIALIZED
 
-.cinit     0    00004f2c    0000003e     
-                  00004f2c    0000001b     (.cinit..data.load) [load image, compression = lzss]
-                  00004f47    00000001     --HOLE-- [fill = 0]
-                  00004f48    0000000c     (__TI_handler_table)
-                  00004f54    00000006     (.cinit..bss.load) [load image, compression = zero_init]
-                  00004f5a    00000010     (__TI_cinit_table)
+.cinit     0    00004f38    0000003e     
+                  00004f38    0000001b     (.cinit..data.load) [load image, compression = lzss]
+                  00004f53    00000001     --HOLE-- [fill = 0]
+                  00004f54    0000000c     (__TI_handler_table)
+                  00004f60    00000006     (.cinit..bss.load) [load image, compression = zero_init]
+                  00004f66    00000010     (__TI_cinit_table)
 
 .init_array 
 *          0    00004400    00000000     UNINITIALIZED
@@ -145,7 +145,7 @@ section   page    origin      length       input sections
                   00002360    00000004     rts430x_lc_rd_eabi.lib : boot.c.obj (.stack)
                   00002364    0000009c     --HOLE--
 
-.text.1    0    00004630    000007f2     
+.text.1    0    00004630    000007fe     
                   00004630    0000006c     diskio.obj (.text:rcvr_datablock)
                   0000469c    00000062     ff.obj (.text:mem_cmp)
                   000046fe    0000005e     ff.obj (.text:mem_cpy)
@@ -155,43 +155,43 @@ section   page    origin      length       input sections
                   00004868    00000058     ff.obj (.text:validate)
                   000048c0    00000056     diskio.obj (.text:power_on)
                   00004916    00000054     rts430x_lc_rd_eabi.lib : autoinit.c.obj (.text:__TI_auto_init_nobinit_nopinit_hold_wdt:__TI_auto_init_nobinit_nopinit_hold_wdt)
-                  0000496a    0000004e     ff.obj (.text:mem_set)
-                  000049b8    00000046     main_SD.obj (.text:DS3234GetCurrentTime)
-                  000049fe    00000042     ff.obj (.text:st_clust)
-                  00004a40    0000003e     rts430x_lc_rd_eabi.lib : lsl32.asm.obj (.text:l_lsl_const)
-                  00004a7e    0000003e                            : lsr32.asm.obj (.text:l_lsr_const)
-                  00004abc    0000003e     diskio.obj (.text:rcvr_spi)
-                  00004afa    0000003c     ff.obj (.text:f_close)
-                  00004b36    00000038     diskio.obj (.text:xmit_spi)
-                  00004b6e    00000030     main_SD.obj (.text:BCDtoDEC)
-                  00004b9e    00000030     main_SD.obj (.text:i2cRead)
-                  00004bce    0000002e     ff.obj (.text:chk_chr)
-                  00004bfc    0000002c     MSPMPU_INIT_LIB_CCS_msp430_large_code_restricted_data.lib : mpu_init.o (.text:__mpu_init)
-                  00004c28    0000002c     main_SD.obj (.text:i2cWrite)
-                  00004c54    0000002c     rts430x_lc_rd_eabi.lib : div16s.asm.obj (.text)
-                  00004c80    00000028     diskio.obj (.text:send_initial_clock_train)
-                  00004ca8    00000024     rts430x_lc_rd_eabi.lib : copy_zero_init.c.obj (.text:decompress:ZI:__TI_zero_init)
-                  00004ccc    00000024                            : mult32_f5hw.asm.obj (.text)
-                  00004cf0    00000024     diskio.obj (.text:wait_ready)
-                  00004d14    0000001a     diskio.obj (.text:rcvr_spi_m)
-                  00004d2e    00000018     diskio.obj (.text:disk_status)
-                  00004d46    00000018     rts430x_lc_rd_eabi.lib : mult16_f5hw.asm.obj (.text)
-                  00004d5e    00000016     main_SD.obj (.text:SendUCA1Data)
-                  00004d74    00000016     main_SD.obj (.text:i2cInit)
-                  00004d8a    00000016     rts430x_lc_rd_eabi.lib : div16u.asm.obj (.text)
-                  00004da0    00000014                            : memcpy.c.obj (.text:memcpy)
-                  00004db4    00000012                            : copy_decompress_none.c.obj (.text:decompress:none:__TI_decompress_none)
-                  00004dc6    00000012     diskio.obj (.text:set_max_speed)
-                  00004dd8    00000010     rts430x_lc_rd_eabi.lib : lsl32.asm.obj (.text:l_lsl)
-                  00004de8    0000000a     diskio.obj (.text:get_fattime)
-                  00004df2    00000008     diskio.obj (.text:DESELECT)
-                  00004dfa    00000008     diskio.obj (.text:SELECT)
-                  00004e02    00000006     main_SD.obj (.text:RTC_DESELECT)
-                  00004e08    00000006     main_SD.obj (.text:RTC_SELECT)
-                  00004e0e    00000006     rts430x_lc_rd_eabi.lib : exit.c.obj (.text:abort)
-                  00004e14    00000006     diskio.obj (.text:chk_power)
-                  00004e1a    00000006     diskio.obj (.text:power_off)
-                  00004e20    00000002     rts430x_lc_rd_eabi.lib : startup.c.obj (.text:_system_post_cinit)
+                  0000496a    0000004e     ff.obj (.text:ld_clust)
+                  000049b8    0000004e     ff.obj (.text:mem_set)
+                  00004a06    00000042     ff.obj (.text:st_clust)
+                  00004a48    0000003e     rts430x_lc_rd_eabi.lib : lsl32.asm.obj (.text:l_lsl_const)
+                  00004a86    0000003e                            : lsr32.asm.obj (.text:l_lsr_const)
+                  00004ac4    0000003e     diskio.obj (.text:rcvr_spi)
+                  00004b02    0000003c     ff.obj (.text:f_close)
+                  00004b3e    00000038     diskio.obj (.text:xmit_spi)
+                  00004b76    00000030     main_SD.obj (.text:BCDtoDEC)
+                  00004ba6    00000030     main_SD.obj (.text:i2cRead)
+                  00004bd6    0000002e     ff.obj (.text:chk_chr)
+                  00004c04    0000002c     MSPMPU_INIT_LIB_CCS_msp430_large_code_restricted_data.lib : mpu_init.o (.text:__mpu_init)
+                  00004c30    0000002c     main_SD.obj (.text:i2cWrite)
+                  00004c5c    0000002c     rts430x_lc_rd_eabi.lib : div16s.asm.obj (.text)
+                  00004c88    00000028     diskio.obj (.text:send_initial_clock_train)
+                  00004cb0    00000024     rts430x_lc_rd_eabi.lib : copy_zero_init.c.obj (.text:decompress:ZI:__TI_zero_init)
+                  00004cd4    00000024                            : mult32_f5hw.asm.obj (.text)
+                  00004cf8    00000024     diskio.obj (.text:wait_ready)
+                  00004d1c    0000001a     main_SD.obj (.text:i2cInit)
+                  00004d36    0000001a     diskio.obj (.text:rcvr_spi_m)
+                  00004d50    00000018     diskio.obj (.text:disk_status)
+                  00004d68    00000018     rts430x_lc_rd_eabi.lib : mult16_f5hw.asm.obj (.text)
+                  00004d80    00000016     main_SD.obj (.text:SendUCA1Data)
+                  00004d96    00000016     rts430x_lc_rd_eabi.lib : div16u.asm.obj (.text)
+                  00004dac    00000014                            : memcpy.c.obj (.text:memcpy)
+                  00004dc0    00000012                            : copy_decompress_none.c.obj (.text:decompress:none:__TI_decompress_none)
+                  00004dd2    00000012     diskio.obj (.text:set_max_speed)
+                  00004de4    00000010     rts430x_lc_rd_eabi.lib : lsl32.asm.obj (.text:l_lsl)
+                  00004df4    0000000a     diskio.obj (.text:get_fattime)
+                  00004dfe    00000008     diskio.obj (.text:DESELECT)
+                  00004e06    00000008     diskio.obj (.text:SELECT)
+                  00004e0e    00000006     main_SD.obj (.text:RTC_DESELECT)
+                  00004e14    00000006     main_SD.obj (.text:RTC_SELECT)
+                  00004e1a    00000006     rts430x_lc_rd_eabi.lib : exit.c.obj (.text:abort)
+                  00004e20    00000006     diskio.obj (.text:chk_power)
+                  00004e26    00000006     diskio.obj (.text:power_off)
+                  00004e2c    00000002     rts430x_lc_rd_eabi.lib : startup.c.obj (.text:_system_post_cinit)
 
 $fill000   0    0000ff80    00000004     
                   0000ff80    00000004     --HOLE-- [fill = ffff]
@@ -290,49 +290,49 @@ SYSNMI     0    0000fffc    00000002
 .reset     0    0000fffe    00000002     
                   0000fffe    00000002     rts430x_lc_rd_eabi.lib : boot.c.obj (.reset)
 
-.const     0    00004e22    00000109     
-                  00004e22    000000ee     main_SD.obj (.const:.string)
-                  00004f10    00000010     ff.obj (.const:.string)
-                  00004f20    0000000b     main_SD.obj (.const:.string:$P$T0$1)
+.const     0    00004e2e    00000109     
+                  00004e2e    000000ee     main_SD.obj (.const:.string)
+                  00004f1c    00000010     ff.obj (.const:.string)
+                  00004f2c    0000000b     main_SD.obj (.const:.string:$P$T0$1)
 
 .text.2    0    00010000    00004000     
-                  00010000    00000a2a     main_SD.obj (.text:main)
-                  00010a2a    0000066c     ff.obj (.text:find_volume)
-                  00011096    000003fa     ff.obj (.text:f_printf)
-                  00011490    000003d4     ff.obj (.text:f_lseek)
-                  00011864    000003c4     ff.obj (.text:f_write)
-                  00011c28    000002ac     ff.obj (.text:f_open)
-                  00011ed4    0000025a     ff.obj (.text:create_name)
-                  0001212e    00000252     ff.obj (.text:put_fat)
-                  00012380    00000226     diskio.obj (.text:disk_ioctl)
-                  000125a6    00000202     main_SD.obj (.text:checkDIPswitch)
-                  000127a8    000001fe     ff.obj (.text:dir_next)
-                  000129a6    000001f0     ff.obj (.text:create_chain)
-                  00012b96    000001d2     ff.obj (.text:get_fat)
-                  00012d68    00000196     diskio.obj (.text:disk_initialize)
-                  00012efe    00000186     ff.obj (.text:dir_sdi)
-                  00013084    0000015c     ff.obj (.text:sync_fs)
-                  000131e0    00000152     ff.obj (.text:f_sync)
-                  00013332    00000120     ff.obj (.text:get_fileinfo)
-                  00013452    00000102     diskio.obj (.text:disk_write)
-                  00013554    000000ea     ff.obj (.text:remove_chain)
-                  0001363e    000000dc     ff.obj (.text:follow_path)
-                  0001371a    000000cc     diskio.obj (.text:disk_read)
-                  000137e6    000000ca     ff.obj (.text:check_fs)
-                  000138b0    000000c8     ff.obj (.text:sync_window)
-                  00013978    00000098     ff.obj (.text:get_ldnumber)
-                  00013a10    00000096     diskio.obj (.text:send_cmd)
-                  00013aa6    00000094     ff.obj (.text:f_mount)
-                  00013b3a    0000008e     main_SD.obj (.text:SPI_Master_ReadReg)
-                  00013bc8    0000008e     ff.obj (.text:dir_alloc)
-                  00013c56    00000088     ff.obj (.text:dir_find)
-                  00013cde    00000084     ff.obj (.text:putc_bfd)
-                  00013d62    0000007e     ff.obj (.text:move_window)
-                  00013de0    0000007a     diskio.obj (.text:xmit_datablock)
-                  00013e5a    00000076     rts430x_lc_rd_eabi.lib : copy_decompress_lzss.c.obj (.text:decompress:lzss:__TI_decompress_lzss)
-                  00013ed0    00000070     ff.obj (.text:f_stat)
-                  00013f40    0000006e     ff.obj (.text:dir_register)
-                  00013fae    0000004e     ff.obj (.text:ld_clust)
+                  00010000    00000a32     main_SD.obj (.text:main)
+                  00010a32    0000066c     ff.obj (.text:find_volume)
+                  0001109e    000003fa     ff.obj (.text:f_printf)
+                  00011498    000003d4     ff.obj (.text:f_lseek)
+                  0001186c    000003c4     ff.obj (.text:f_write)
+                  00011c30    000002ac     ff.obj (.text:f_open)
+                  00011edc    0000025a     ff.obj (.text:create_name)
+                  00012136    00000252     ff.obj (.text:put_fat)
+                  00012388    00000226     diskio.obj (.text:disk_ioctl)
+                  000125ae    00000202     main_SD.obj (.text:checkDIPswitch)
+                  000127b0    000001fe     ff.obj (.text:dir_next)
+                  000129ae    000001f0     ff.obj (.text:create_chain)
+                  00012b9e    000001d2     ff.obj (.text:get_fat)
+                  00012d70    00000196     diskio.obj (.text:disk_initialize)
+                  00012f06    00000186     ff.obj (.text:dir_sdi)
+                  0001308c    0000015c     ff.obj (.text:sync_fs)
+                  000131e8    00000152     ff.obj (.text:f_sync)
+                  0001333a    00000120     ff.obj (.text:get_fileinfo)
+                  0001345a    00000102     diskio.obj (.text:disk_write)
+                  0001355c    000000ea     ff.obj (.text:remove_chain)
+                  00013646    000000dc     ff.obj (.text:follow_path)
+                  00013722    000000cc     diskio.obj (.text:disk_read)
+                  000137ee    000000ca     ff.obj (.text:check_fs)
+                  000138b8    000000c8     ff.obj (.text:sync_window)
+                  00013980    00000098     ff.obj (.text:get_ldnumber)
+                  00013a18    00000096     diskio.obj (.text:send_cmd)
+                  00013aae    00000094     ff.obj (.text:f_mount)
+                  00013b42    0000008e     main_SD.obj (.text:SPI_Master_ReadReg)
+                  00013bd0    0000008e     ff.obj (.text:dir_alloc)
+                  00013c5e    00000088     ff.obj (.text:dir_find)
+                  00013ce6    00000084     ff.obj (.text:putc_bfd)
+                  00013d6a    0000007e     ff.obj (.text:move_window)
+                  00013de8    0000007a     diskio.obj (.text:xmit_datablock)
+                  00013e62    00000076     rts430x_lc_rd_eabi.lib : copy_decompress_lzss.c.obj (.text:decompress:lzss:__TI_decompress_lzss)
+                  00013ed8    00000070     ff.obj (.text:f_stat)
+                  00013f48    0000006e     ff.obj (.text:dir_register)
+                  00013fb6    00000046     main_SD.obj (.text:DS3234GetCurrentTime)
                   00013ffc    00000004     rts430x_lc_rd_eabi.lib : pre_init.c.obj (.text:_system_pre_init)
 
 MODULE SUMMARY
@@ -340,9 +340,9 @@ MODULE SUMMARY
        Module                       code    ro data   rw data
        ------                       ----    -------   -------
     .\
-       main_SD.obj                  4044    255       1242   
+       main_SD.obj                  4056    255       1242   
     +--+----------------------------+-------+---------+---------+
-       Total:                       4044    255       1242   
+       Total:                       4056    255       1242   
                                                              
     .\FatFS\
        ff.obj                       11936   16        6      
@@ -401,19 +401,19 @@ MODULE SUMMARY
        Stack:                       0       0         160    
        Linker Generated:            0       61        0      
     +--+----------------------------+-------+---------+---------+
-       Grand Total:                 18978   378       1413   
+       Grand Total:                 18990   378       1413   
 
 
 LINKER GENERATED COPY TABLES
 
-__TI_cinit_table @ 00004f5a records: 2, size/record: 8, table size: 16
-	.data: load addr=00004f2c, load size=0000001b bytes, run addr=00002086, run size=00000060 bytes, compression=lzss
-	.bss: load addr=00004f54, load size=00000006 bytes, run addr=00001c00, run size=00000486 bytes, compression=zero_init
+__TI_cinit_table @ 00004f66 records: 2, size/record: 8, table size: 16
+	.data: load addr=00004f38, load size=0000001b bytes, run addr=00002086, run size=00000060 bytes, compression=lzss
+	.bss: load addr=00004f60, load size=00000006 bytes, run addr=00001c00, run size=00000486 bytes, compression=zero_init
 
 
 LINKER GENERATED HANDLER TABLE
 
-__TI_handler_table @ 00004f48 records: 3, size/record: 4, table size: 12
+__TI_handler_table @ 00004f54 records: 3, size/record: 4, table size: 12
 	index: 0, handler: __TI_zero_init
 	index: 1, handler: __TI_decompress_lzss
 	index: 2, handler: __TI_decompress_none
@@ -680,9 +680,9 @@ address   name
 000009ce  AESAXIN_L                              
 000020b8  AccelSensitivity                       
 000004be  BCD2BIN                                
-00004b6e  BCDtoDEC                               
+00004b76  BCDtoDEC                               
 000004bc  BIN2BCD                                
-00004e0e  C$$EXIT                                
+00004e1a  C$$EXIT                                
 0000043e  CAPTIO0CTL                             
 0000043f  CAPTIO0CTL_H                           
 0000043e  CAPTIO0CTL_L                           
@@ -771,7 +771,7 @@ address   name
 00000508  DMACTL4                                
 0000050e  DMAIV                                  
 0000207c  DPS_MODE                               
-000049b8  DS3234GetCurrentTime                   
+00013fb6  DS3234GetCurrentTime                   
 00000140  FRCTL0                                 
 00000141  FRCTL0_H                               
 00000140  FRCTL0_L                               
@@ -1020,7 +1020,7 @@ address   name
 00000104  SFRRPCR                                
 00000105  SFRRPCR_H                              
 00000104  SFRRPCR_L                              
-00013b3a  SPI_Master_ReadReg                     
+00013b42  SPI_Master_ReadReg                     
 000004ce  SUMEXT                                 
 000004cf  SUMEXT_H                               
 000004ce  SUMEXT_L                               
@@ -1051,7 +1051,7 @@ address   name
 0000019a  SYSUNIV                                
 0000019b  SYSUNIV_H                              
 0000019a  SYSUNIV_L                              
-00004d5e  SendUCA1Data                           
+00004d80  SendUCA1Data                           
 00000352  TA0CCR0                                
 00000354  TA0CCR1                                
 00000356  TA0CCR2                                
@@ -1230,14 +1230,14 @@ address   name
 0000015c  WDTCTL_L                               
 00002400  __STACK_END                            
 000000a0  __STACK_SIZE                           
-00004f5a  __TI_CINIT_Base                        
-00004f6a  __TI_CINIT_Limit                       
-00004f48  __TI_Handler_Table_Base                
-00004f54  __TI_Handler_Table_Limit               
+00004f66  __TI_CINIT_Base                        
+00004f76  __TI_CINIT_Limit                       
+00004f54  __TI_Handler_Table_Base                
+00004f60  __TI_Handler_Table_Limit               
 00004628  __TI_ISR_TRAP                          
 00004916  __TI_auto_init_nobinit_nopinit_hold_wdt
-00013e5a  __TI_decompress_lzss                   
-00004db4  __TI_decompress_none                   
+00013e62  __TI_decompress_lzss                   
+00004dc0  __TI_decompress_none                   
 0000ffcc  __TI_int30                             
 0000ffce  __TI_int31                             
 0000ffd0  __TI_int32                             
@@ -1266,93 +1266,93 @@ address   name
 ffffffff  __TI_pprof_out_hndl                    
 ffffffff  __TI_prof_data_size                    
 ffffffff  __TI_prof_data_start                   
-00004ca8  __TI_zero_init                         
+00004cb0  __TI_zero_init                         
 ffffffff  __c_args__                             
 00000001  __mpu_enable                           
-00004bfc  __mpu_init                             
-00004c54  __mspabi_divi                          
-00004d8a  __mspabi_divu                          
+00004c04  __mpu_init                             
+00004c5c  __mspabi_divi                          
+00004d96  __mspabi_divu                          
 000047b8  __mspabi_divul                         
-00004d46  __mspabi_mpyi_f5hw                     
-00004ccc  __mspabi_mpyl_f5hw                     
-00004c54  __mspabi_remi                          
-00004d8a  __mspabi_remu                          
+00004d68  __mspabi_mpyi_f5hw                     
+00004cd4  __mspabi_mpyl_f5hw                     
+00004c5c  __mspabi_remi                          
+00004d96  __mspabi_remu                          
 000047b8  __mspabi_remul                         
-00004dd8  __mspabi_slll                          
-00004a78  __mspabi_slll_1                        
-00004a54  __mspabi_slll_10                       
-00004a50  __mspabi_slll_11                       
-00004a4c  __mspabi_slll_12                       
-00004a48  __mspabi_slll_13                       
-00004a44  __mspabi_slll_14                       
-00004a40  __mspabi_slll_15                       
-00004a74  __mspabi_slll_2                        
-00004a70  __mspabi_slll_3                        
-00004a6c  __mspabi_slll_4                        
-00004a68  __mspabi_slll_5                        
-00004a64  __mspabi_slll_6                        
-00004a60  __mspabi_slll_7                        
-00004a5c  __mspabi_slll_8                        
-00004a58  __mspabi_slll_9                        
-00004ab6  __mspabi_srll_1                        
-00004a92  __mspabi_srll_10                       
-00004a8e  __mspabi_srll_11                       
-00004a8a  __mspabi_srll_12                       
-00004a86  __mspabi_srll_13                       
-00004a82  __mspabi_srll_14                       
-00004a7e  __mspabi_srll_15                       
-00004ab2  __mspabi_srll_2                        
-00004aae  __mspabi_srll_3                        
-00004aaa  __mspabi_srll_4                        
-00004aa6  __mspabi_srll_5                        
-00004aa2  __mspabi_srll_6                        
-00004a9e  __mspabi_srll_7                        
-00004a9a  __mspabi_srll_8                        
-00004a96  __mspabi_srll_9                        
+00004de4  __mspabi_slll                          
+00004a80  __mspabi_slll_1                        
+00004a5c  __mspabi_slll_10                       
+00004a58  __mspabi_slll_11                       
+00004a54  __mspabi_slll_12                       
+00004a50  __mspabi_slll_13                       
+00004a4c  __mspabi_slll_14                       
+00004a48  __mspabi_slll_15                       
+00004a7c  __mspabi_slll_2                        
+00004a78  __mspabi_slll_3                        
+00004a74  __mspabi_slll_4                        
+00004a70  __mspabi_slll_5                        
+00004a6c  __mspabi_slll_6                        
+00004a68  __mspabi_slll_7                        
+00004a64  __mspabi_slll_8                        
+00004a60  __mspabi_slll_9                        
+00004abe  __mspabi_srll_1                        
+00004a9a  __mspabi_srll_10                       
+00004a96  __mspabi_srll_11                       
+00004a92  __mspabi_srll_12                       
+00004a8e  __mspabi_srll_13                       
+00004a8a  __mspabi_srll_14                       
+00004a86  __mspabi_srll_15                       
+00004aba  __mspabi_srll_2                        
+00004ab6  __mspabi_srll_3                        
+00004ab2  __mspabi_srll_4                        
+00004aae  __mspabi_srll_5                        
+00004aaa  __mspabi_srll_6                        
+00004aa6  __mspabi_srll_7                        
+00004aa2  __mspabi_srll_8                        
+00004a9e  __mspabi_srll_9                        
 00004608  _c_int00_noargs_mpu                    
 0000fffe  _reset_vector                          
 00002360  _stack                                 
-00004e20  _system_post_cinit                     
+00004e2c  _system_post_cinit                     
 00013ffc  _system_pre_init                       
 000020b6  a                                      
-00004e0e  abort                                  
+00004e1a  abort                                  
 0000208e  backupCtr                              
-000125a6  checkDIPswitch                         
+000125ae  checkDIPswitch                         
 0000475c  clust2sect                             
 000020b4  count                                  
-00012d68  disk_initialize                        
-00012380  disk_ioctl                             
-0001371a  disk_read                              
-00004d2e  disk_status                            
-00013452  disk_write                             
-00004afa  f_close                                
-00011490  f_lseek                                
-00013aa6  f_mount                                
-00011c28  f_open                                 
-00011096  f_printf                               
-00013ed0  f_stat                                 
-000131e0  f_sync                                 
-00011864  f_write                                
+00012d70  disk_initialize                        
+00012388  disk_ioctl                             
+00013722  disk_read                              
+00004d50  disk_status                            
+0001345a  disk_write                             
+00004b02  f_close                                
+00011498  f_lseek                                
+00013aae  f_mount                                
+00011c30  f_open                                 
+0001109e  f_printf                               
+00013ed8  f_stat                                 
+000131e8  f_sync                                 
+0001186c  f_write                                
 00004400  fram_ipe_end                           
 00004400  fram_ipe_start                         
 00004400  fram_rx_start                          
-00012b96  get_fat                                
-00004de8  get_fattime                            
-00004d74  i2cInit                                
-00004b9e  i2cRead                                
-00004c28  i2cWrite                               
+00012b9e  get_fat                                
+00004df4  get_fattime                            
+00004d1c  i2cInit                                
+00004ba6  i2cRead                                
+00004c30  i2cWrite                               
 00001e2e  logfile                                
 000020aa  magstat1                               
 000020ac  magstat2                               
 00010000  main                                   
 00002082  measurementInit                        
-00004da0  memcpy                                 
+00004dac  memcpy                                 
 00002084  mode                                   
 0000a501  mpu_ctl0_value                         
 00001513  mpu_sam_value                          
 00000440  mpu_segment_border1                    
 00000440  mpu_segment_border2                    
-0001212e  put_fat                                
+00012136  put_fat                                
 000020b0  register_value                         
 00001c00  sdVolume                               
 00002094  sensorsetting                          
@@ -2215,63 +2215,62 @@ address   name
 000047b8  __mspabi_divul                         
 000047b8  __mspabi_remul                         
 00004916  __TI_auto_init_nobinit_nopinit_hold_wdt
-000049b8  DS3234GetCurrentTime                   
-00004a40  __mspabi_slll_15                       
-00004a44  __mspabi_slll_14                       
-00004a48  __mspabi_slll_13                       
-00004a4c  __mspabi_slll_12                       
-00004a50  __mspabi_slll_11                       
-00004a54  __mspabi_slll_10                       
-00004a58  __mspabi_slll_9                        
-00004a5c  __mspabi_slll_8                        
-00004a60  __mspabi_slll_7                        
-00004a64  __mspabi_slll_6                        
-00004a68  __mspabi_slll_5                        
-00004a6c  __mspabi_slll_4                        
-00004a70  __mspabi_slll_3                        
-00004a74  __mspabi_slll_2                        
-00004a78  __mspabi_slll_1                        
-00004a7e  __mspabi_srll_15                       
-00004a82  __mspabi_srll_14                       
-00004a86  __mspabi_srll_13                       
-00004a8a  __mspabi_srll_12                       
-00004a8e  __mspabi_srll_11                       
-00004a92  __mspabi_srll_10                       
-00004a96  __mspabi_srll_9                        
-00004a9a  __mspabi_srll_8                        
-00004a9e  __mspabi_srll_7                        
-00004aa2  __mspabi_srll_6                        
-00004aa6  __mspabi_srll_5                        
-00004aaa  __mspabi_srll_4                        
-00004aae  __mspabi_srll_3                        
-00004ab2  __mspabi_srll_2                        
-00004ab6  __mspabi_srll_1                        
-00004afa  f_close                                
-00004b6e  BCDtoDEC                               
-00004b9e  i2cRead                                
-00004bfc  __mpu_init                             
-00004c28  i2cWrite                               
-00004c54  __mspabi_divi                          
-00004c54  __mspabi_remi                          
-00004ca8  __TI_zero_init                         
-00004ccc  __mspabi_mpyl_f5hw                     
-00004d2e  disk_status                            
-00004d46  __mspabi_mpyi_f5hw                     
-00004d5e  SendUCA1Data                           
-00004d74  i2cInit                                
-00004d8a  __mspabi_divu                          
-00004d8a  __mspabi_remu                          
-00004da0  memcpy                                 
-00004db4  __TI_decompress_none                   
-00004dd8  __mspabi_slll                          
-00004de8  get_fattime                            
-00004e0e  C$$EXIT                                
-00004e0e  abort                                  
-00004e20  _system_post_cinit                     
-00004f48  __TI_Handler_Table_Base                
-00004f54  __TI_Handler_Table_Limit               
-00004f5a  __TI_CINIT_Base                        
-00004f6a  __TI_CINIT_Limit                       
+00004a48  __mspabi_slll_15                       
+00004a4c  __mspabi_slll_14                       
+00004a50  __mspabi_slll_13                       
+00004a54  __mspabi_slll_12                       
+00004a58  __mspabi_slll_11                       
+00004a5c  __mspabi_slll_10                       
+00004a60  __mspabi_slll_9                        
+00004a64  __mspabi_slll_8                        
+00004a68  __mspabi_slll_7                        
+00004a6c  __mspabi_slll_6                        
+00004a70  __mspabi_slll_5                        
+00004a74  __mspabi_slll_4                        
+00004a78  __mspabi_slll_3                        
+00004a7c  __mspabi_slll_2                        
+00004a80  __mspabi_slll_1                        
+00004a86  __mspabi_srll_15                       
+00004a8a  __mspabi_srll_14                       
+00004a8e  __mspabi_srll_13                       
+00004a92  __mspabi_srll_12                       
+00004a96  __mspabi_srll_11                       
+00004a9a  __mspabi_srll_10                       
+00004a9e  __mspabi_srll_9                        
+00004aa2  __mspabi_srll_8                        
+00004aa6  __mspabi_srll_7                        
+00004aaa  __mspabi_srll_6                        
+00004aae  __mspabi_srll_5                        
+00004ab2  __mspabi_srll_4                        
+00004ab6  __mspabi_srll_3                        
+00004aba  __mspabi_srll_2                        
+00004abe  __mspabi_srll_1                        
+00004b02  f_close                                
+00004b76  BCDtoDEC                               
+00004ba6  i2cRead                                
+00004c04  __mpu_init                             
+00004c30  i2cWrite                               
+00004c5c  __mspabi_divi                          
+00004c5c  __mspabi_remi                          
+00004cb0  __TI_zero_init                         
+00004cd4  __mspabi_mpyl_f5hw                     
+00004d1c  i2cInit                                
+00004d50  disk_status                            
+00004d68  __mspabi_mpyi_f5hw                     
+00004d80  SendUCA1Data                           
+00004d96  __mspabi_divu                          
+00004d96  __mspabi_remu                          
+00004dac  memcpy                                 
+00004dc0  __TI_decompress_none                   
+00004de4  __mspabi_slll                          
+00004df4  get_fattime                            
+00004e1a  C$$EXIT                                
+00004e1a  abort                                  
+00004e2c  _system_post_cinit                     
+00004f54  __TI_Handler_Table_Base                
+00004f60  __TI_Handler_Table_Limit               
+00004f66  __TI_CINIT_Base                        
+00004f76  __TI_CINIT_Limit                       
 0000a501  mpu_ctl0_value                         
 0000ffcc  __TI_int30                             
 0000ffce  __TI_int31                             
@@ -2300,22 +2299,23 @@ address   name
 0000fffc  __TI_int54                             
 0000fffe  _reset_vector                          
 00010000  main                                   
-00011096  f_printf                               
-00011490  f_lseek                                
-00011864  f_write                                
-00011c28  f_open                                 
-0001212e  put_fat                                
-00012380  disk_ioctl                             
-000125a6  checkDIPswitch                         
-00012b96  get_fat                                
-00012d68  disk_initialize                        
-000131e0  f_sync                                 
-00013452  disk_write                             
-0001371a  disk_read                              
-00013aa6  f_mount                                
-00013b3a  SPI_Master_ReadReg                     
-00013e5a  __TI_decompress_lzss                   
-00013ed0  f_stat                                 
+0001109e  f_printf                               
+00011498  f_lseek                                
+0001186c  f_write                                
+00011c30  f_open                                 
+00012136  put_fat                                
+00012388  disk_ioctl                             
+000125ae  checkDIPswitch                         
+00012b9e  get_fat                                
+00012d70  disk_initialize                        
+000131e8  f_sync                                 
+0001345a  disk_write                             
+00013722  disk_read                              
+00013aae  f_mount                                
+00013b42  SPI_Master_ReadReg                     
+00013e62  __TI_decompress_lzss                   
+00013ed8  f_stat                                 
+00013fb6  DS3234GetCurrentTime                   
 00013ffc  _system_pre_init                       
 ffffffff  __TI_pprof_out_hndl                    
 ffffffff  __TI_prof_data_size                    
