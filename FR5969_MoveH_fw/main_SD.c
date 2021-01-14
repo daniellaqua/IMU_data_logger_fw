@@ -209,7 +209,7 @@ void i2cInit(void)
      UCB0CTLW0 |= UCMODE_3 | UCMST | UCSSEL__SMCLK | UCSYNC; // I2C master mode, SMCLK
      //UCB0BRW = 0x2;                            // baudrate = SMCLK / 2
      //UCB0BRW = 0x50;                            // baudrate = SMCLK / 20 = ~400kHz
-     UCB0BRW = 8;                            // baudrate = SMCLK / 20 = ~400kHz
+     UCB0BRW = 20;                            // baudrate = SMCLK / 20 = ~400kHz
      UCB0CTLW0 &= ~UCSWRST;                    // clear reset register
      UCB0IE |= UCTXIE0 | UCNACKIE;             // transmit and NACK interrupt enable
 }
