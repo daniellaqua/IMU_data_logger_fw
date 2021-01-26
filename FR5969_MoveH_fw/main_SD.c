@@ -1,6 +1,7 @@
 #include <msp430.h>
 #include <stdint.h>
 #include <stdio.h>
+#include <stdbool.h>
 #include "./FatFS/ff.h"
 #include "./FatFS/diskio.h"
 
@@ -150,6 +151,16 @@ uint8_t status = 17;    // SD card status variable that should change if success
 unsigned int backupCtr = 0; // Counter for data backup
 unsigned int mode; // operating mode(standby mode / measurement mode)
 unsigned int measurementInit; //check if new file has to be created and opened
+bool RTCnewer = false;
+
+int16_t comp_year = 7;
+int16_t comp_month = 7;
+int16_t comp_date = 7;
+int16_t comp_hour = 7;
+int16_t comp_minute = 7;
+int16_t comp_second = 7;
+char testdate[10];
+char testtime[10];
 
 unsigned char RX_Data[23];
 unsigned char TX_Data[2];
@@ -389,7 +400,62 @@ void setTime(uint8_t * time, uint8_t len)
     SPI_Master_WriteReg(DS3234_REGISTER_BASE, time, TIME_ARRAY_LENGTH);
 }
 //*********************************************************************************************
+//compareTimes -- subtract compiler time from RTC register time
+//if compiler time is newer --> update RTC registers
+//TimeArray[Sec,Min,Hou,Day,Dat,Mon,Yea]
+void compareTimes(){
 
+    _time[TIME_SECONDS] = BUILD_SECOND;
+    _time[TIME_MINUTES] = BUILD_MINUTE;
+    _time[TIME_HOURS] = BUILD_HOUR;
+    _time[TIME_MONTH] = BUILD_MONTH;
+    _time[TIME_DATE] = BUILD_DATE;
+    _time[TIME_YEAR] = BUILD_YEAR - 2000;
+
+    comp_year = TimeArray[6] - _time[TIME_YEAR];
+    comp_month = TimeArray[5] - _time[TIME_MONTH];
+    comp_date = TimeArray[4] - _time[TIME_DATE];
+    comp_hour = TimeArray[2] - _time[TIME_HOURS];
+    comp_minute = TimeArray[1] - _time[TIME_MINUTES];
+    comp_second = TimeArray[0] - _time[TIME_SECONDS];
+
+/*
+    int year = TimeArray[6] - (BUILD_YEAR - 2000);
+    int month = TimeArray[5] - BUILD_MONTH;
+    int date = TimeArray[4] - BUILD_DATE;
+    int hour = TimeArray[2] - BUILD_HOUR;
+    int minute = TimeArray[1] - BUILD_MINUTE;
+    int second = TimeArray[0] - BUILD_SECOND;
+*/
+
+    if(comp_year < 0){RTCnewer = false;}
+    else if(comp_year > 0){RTCnewer = true;}
+    else{
+        if(comp_month < 0){RTCnewer = false;}
+        else if(comp_month > 0){RTCnewer = true;}
+        else{
+            if(comp_date < 0){RTCnewer = false;}
+            else if(comp_date > 0){RTCnewer = true;}
+            else{
+                if(comp_hour < 0){RTCnewer = false;}
+                else if(comp_hour > 0){RTCnewer = true;}
+                else{
+                    if(comp_minute < 0){RTCnewer = false;}
+                    else if(comp_minute > 0){RTCnewer = true;}
+                    else{
+                        if(comp_second < 0){RTCnewer = false;}
+                        else{RTCnewer = true;}
+                    }
+                }
+            }
+        }
+    }
+}
+//*********************************************************************************************
+
+
+//*********************************************************************************************
+/*
 // autoTime -- Fill DS3234 time registers with compiler time/date
 void autoTime()
 {
@@ -412,6 +478,33 @@ void autoTime()
 
     setTime(_time, TIME_ARRAY_LENGTH);
     //setTime(testdata, TIME_ARRAY_LENGTH);
+}
+*/
+
+// autoTime -- Fill DS3234 time registers with compiler time/date
+void autoTime()
+{
+    if(RTCnewer == false){
+    _time[TIME_SECONDS] = DECtoBCD(BUILD_SECOND);
+    _time[TIME_MINUTES] = DECtoBCD(BUILD_MINUTE);
+    _time[TIME_HOURS] = BUILD_HOUR;
+    _time[TIME_HOURS] = DECtoBCD(_time[TIME_HOURS]);
+    _time[TIME_MONTH] = DECtoBCD(BUILD_MONTH);
+    _time[TIME_DATE] = DECtoBCD(BUILD_DATE);
+    _time[TIME_YEAR] = DECtoBCD(BUILD_YEAR - 2000);
+
+    // Calculate weekday (from here: http://stackoverflow.com/a/21235587)
+    // Result: 0 = Sunday, 6 = Saturday
+    int d = BUILD_DATE;
+    int m = BUILD_MONTH;
+    int y = BUILD_YEAR;
+    int weekday = (d+=m<3?y--:y-2,23*m/9+d+4+y/4-y/100+y/400)%7;
+    weekday += 1; // Library defines Sunday=1, Saturday=7
+    _time[TIME_DAY] = DECtoBCD(weekday);
+
+    setTime(_time, TIME_ARRAY_LENGTH);
+    //setTime(testdata, TIME_ARRAY_LENGTH);
+    }
 }
 //*********************************************************************************************
 //helper function to read DIP switch postion for setting accelerometer+gyro modes
@@ -636,6 +729,15 @@ int main(void){
       //set RTC
       //autoTime();
       //DS3234GetCurrentTime();
+
+      sprintf(testdate,__DATE__);
+      sprintf(testtime,__TIME__);
+
+      //compare RTC register time to compiler time and use newer time
+      DS3234GetCurrentTime();
+      compareTimes();
+      autoTime();
+      DS3234GetCurrentTime();
 //--------------------------------------Initialize SD card--------------------------------------------------------------------------------------------
 
 
