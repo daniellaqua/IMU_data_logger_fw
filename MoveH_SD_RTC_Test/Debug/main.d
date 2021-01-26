@@ -18,6 +18,7 @@ main.obj: C:/ti/ccs1011/ccs/tools/compiler/ti-cgt-msp430_20.2.4.LTS/include/mach
 main.obj: C:/ti/ccs1011/ccs/tools/compiler/ti-cgt-msp430_20.2.4.LTS/include/sys/_stdint.h
 main.obj: C:/ti/ccs1011/ccs/tools/compiler/ti-cgt-msp430_20.2.4.LTS/include/stdio.h
 main.obj: C:/ti/ccs1011/ccs/tools/compiler/ti-cgt-msp430_20.2.4.LTS/include/stdarg.h
+main.obj: C:/ti/ccs1011/ccs/tools/compiler/ti-cgt-msp430_20.2.4.LTS/include/stdbool.h
 main.obj: .././FatFS/ff.h
 main.obj: .././FatFS/integer.h
 main.obj: .././FatFS/ffconf.h
@@ -41,6 +42,7 @@ C:/ti/ccs1011/ccs/tools/compiler/ti-cgt-msp430_20.2.4.LTS/include/machine/_stdin
 C:/ti/ccs1011/ccs/tools/compiler/ti-cgt-msp430_20.2.4.LTS/include/sys/_stdint.h: 
 C:/ti/ccs1011/ccs/tools/compiler/ti-cgt-msp430_20.2.4.LTS/include/stdio.h: 
 C:/ti/ccs1011/ccs/tools/compiler/ti-cgt-msp430_20.2.4.LTS/include/stdarg.h: 
+C:/ti/ccs1011/ccs/tools/compiler/ti-cgt-msp430_20.2.4.LTS/include/stdbool.h: 
 .././FatFS/ff.h: 
 .././FatFS/integer.h: 
 .././FatFS/ffconf.h: 
