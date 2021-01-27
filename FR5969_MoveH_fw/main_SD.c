@@ -4,11 +4,16 @@
 #include <stdbool.h>
 #include "./FatFS/ff.h"
 #include "./FatFS/diskio.h"
-
+/*
 #define SW1 BIT0 //Port3
 #define SW2 BIT5 //Port1
 #define SW3 BIT4 //Port1
 #define SW4 BIT3 //Port1
+*/
+#define SW4 BIT0 //Port3
+#define SW3 BIT5 //Port1
+#define SW2 BIT4 //Port1
+#define SW1 BIT3 //Port1
 
 #define RTC_SPI_SEL         P2SEL1
 #define RTC_SPI_DIR         P2DIR
@@ -509,6 +514,32 @@ void autoTime()
 //*********************************************************************************************
 //helper function to read DIP switch postion for setting accelerometer+gyro modes
 void checkDIPswitch(){
+    if(!(P1IN & SW1)){
+        sensorsetting |= (1<<3);
+    }
+    else{
+        sensorsetting &= ~(1<<3);
+    }
+    if(!(P1IN & SW2)){
+        sensorsetting |= (1<<2);
+    }
+    else{
+        sensorsetting &= ~(1<<2);
+    }
+    if(!(P1IN & SW3)){
+        sensorsetting |= (1<<1);
+    }
+    else{
+        sensorsetting &= ~(1<<1);
+    }
+    if(!(P3IN & SW4)){
+        sensorsetting |= (1<<0);
+    }
+    else{
+        sensorsetting &= ~(1<<0);
+    }
+
+/*
     if(!(P3IN & SW1)){
         sensorsetting |= (1<<3);
     }
@@ -533,7 +564,7 @@ void checkDIPswitch(){
     else{
         sensorsetting &= ~(1<<0);
     }
-
+*/
     switch(sensorsetting){
         case 0:
             AccelSensitivity = 2;
